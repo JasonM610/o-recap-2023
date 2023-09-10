@@ -5,9 +5,8 @@ from requests_oauthlib import OAuth2Session
 client_id = os.environ.get("CLIENT_ID")
 client_secret = os.environ.get("CLIENT_SECRET")
 
-base_url = "https://osu.ppy.sh/api/v2"
+api_base_url = "https://osu.ppy.sh/api/v2"
 token_url = "https://osu.ppy.sh/oauth/token"
-auth_base_url = "https://osu.ppy.sh/oauth/authorize"
 
 
 client = BackendApplicationClient(client_id=client_id, scope=["public"])
@@ -18,7 +17,7 @@ token = session.fetch_token(
 
 
 def send_request(url):
-    return session.request("GET", f"{base_url}{url}")
+    return session.request("GET", f"{api_base_url}{url}")
 
 
 r = send_request("/users/12408961/osu")

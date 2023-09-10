@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Identity
 
 db = SQLAlchemy()
 
@@ -9,7 +10,8 @@ class User(db.Model):
     data received from request to '/users/{user}/{mode}'
     https://osu.ppy.sh/docs/index.html#user
     """
-    user_key = db.Column(db.Integer, primary_key=True)
+
+    user_key = db.Column(db.Integer, Identity(), primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     user_name = db.Column(db.String(40), nullable=False)
     country_code = db.Column(db.String(2))
@@ -25,6 +27,7 @@ class BeatmapScore(db.Model):
     https://osu.ppy.sh/docs/index.html#beatmapuserscore
     https://osu.ppy.sh/docs/index.html#score
     """
+
     score_key = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
@@ -51,7 +54,8 @@ class UserBestScore(db.Model):
     https://osu.ppy.sh/docs/index.html#get-user-scores
     https://osu.ppy.sh/docs/index.html#score
     """
-    score_key = db.Column(db.Integer, primary_key=True)    
+
+    score_key = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     beatmap_id = db.Column(db.Integer, unique=True, nulllable=False)
     score_id = db.Column(db.Integer, unique=True, nullable=False)
