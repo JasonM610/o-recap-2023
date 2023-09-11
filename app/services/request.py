@@ -16,7 +16,7 @@ token = session.fetch_token(
 )
 
 
-def send_request(url):
+def send_request(url: str) -> None:
     return session.request("GET", f"{api_base_url}{url}")
 
 

@@ -22,11 +22,7 @@ class User(db.Model):
 
 
 class BeatmapScore(db.Model):
-    """
-    data received from request to '/beatmaps/{beatmap}/scores/users/{user}/all'
-    https://osu.ppy.sh/docs/index.html#beatmapuserscore
-    https://osu.ppy.sh/docs/index.html#score
-    """
+    """ """
 
     score_key = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
@@ -50,7 +46,7 @@ class BeatmapScore(db.Model):
 
 class UserBestScore(db.Model):
     """
-    data received from request to '/users/{user}/scores/best?limit=100&mode={mode}'
+    Data received from request to '/users/{user}/scores/best?limit=100&mode={mode}'
     https://osu.ppy.sh/docs/index.html#get-user-scores
     https://osu.ppy.sh/docs/index.html#score
     """
