@@ -22,7 +22,3 @@ def send_request(url: str) -> None:
 
 r = send_request("/users/12408961/osu")
 print(r.content)
-
-# temp = json.dumps(r.json(), indent=4)
-# with open("test_3.json", "w") as outfile:
-# outfile.write(temp)
