@@ -43,7 +43,7 @@ class BeatmapScore(db.Model):
     mode_int = db.Column(db.SmallInteger)
 
 
-class UserBestScore(db.Model):
+class UserBestPerformance(db.Model):
     """
     Data received from request to '/users/{user}/scores/best?limit=100&mode={mode}'
     https://osu.ppy.sh/docs/index.html#get-user-scores
