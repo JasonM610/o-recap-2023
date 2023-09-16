@@ -1,13 +1,13 @@
+import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from .views import main
-
-db = SQLAlchemy()
+from . import routes
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.register_blueprint(main)
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+
+    app.register_blueprint()
 
     return app
 

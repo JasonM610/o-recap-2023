@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>osu! Wrapped 2023</title>
+</head>
+<body>
+    <p>
+        {% if user %}
+        User: {{user}}
+        {% else %}
+        Please enter user
+        {% endif %}
+    </p>
+    <form method="POST"> 
+        {{ form.hidden_tag() }}
+        {{ form.user.label }} {{ form.user() }}
+        {{ form.mode.label }} {{ form.mode() }}
+        {{ form.submit() }}
+    </form>
+</body>
+</html>

@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Identity
 from app import db
 
+# need to add something about game mode to all
+
 
 class User(db.Model):
     """
@@ -10,6 +12,7 @@ class User(db.Model):
     https://osu.ppy.sh/docs/index.html#user
     """
 
+    # __tablename__ = ...
     user_key = db.Column(db.Integer, Identity(), primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     user_name = db.Column(db.String(40), nullable=False)
@@ -23,6 +26,7 @@ class User(db.Model):
 class BeatmapScore(db.Model):
     """ """
 
+    # __tablename__ = ...
     score_key = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
@@ -50,6 +54,7 @@ class UserBestPerformance(db.Model):
     https://osu.ppy.sh/docs/index.html#score
     """
 
+    # __tablename__ = ...
     score_key = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     beatmap_id = db.Column(db.Integer, unique=True, nulllable=False)

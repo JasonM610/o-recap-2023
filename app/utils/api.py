@@ -1,4 +1,5 @@
 import os, json
+from typing import Union
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
@@ -16,7 +17,7 @@ token = session.fetch_token(
 )
 
 
-def send_request(url: str) -> None:
+def send_request(url: str):
     return session.request("GET", f"{api_base_url}{url}")
 
 
