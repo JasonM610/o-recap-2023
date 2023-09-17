@@ -6,13 +6,6 @@
     <title>osu! Wrapped 2023</title>
 </head>
 <body>
-    <p>
-        {% if user %}
-        User: {{user}}
-        {% else %}
-        Please enter user
-        {% endif %}
-    </p>
     <form method="POST"> 
         {{ form.hidden_tag() }}
         {{ form.user.label }} {{ form.user() }}

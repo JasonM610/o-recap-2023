@@ -1,13 +1,16 @@
 from flask import Blueprint, redirect, render_template, url_for
-from typing import Union
-from . import create_app
+from flask import current_app as app
 from .forms import UserForm
 
-app = Blueprint("app", __name__)
+
+home_bp = Blueprint(
+    "home_bp", __name__, template_folder="templates", static_folder="static"
+)
 
 
-@app.route("/", methods=["GET", "POST"])
+@home_bp.route("/", methods=["GET", "POST"])
 def index():
+    user = False
     form = UserForm()
     if form.validate_on_submit():
         user = form.user.data
@@ -18,11 +21,3 @@ def index():
         return redirect(url_for("user", user=user))
 
     return render_template("index.html", form=form, user=user)
-
-
-@app.route("/users/<user>/", methods=["GET"])
-def user(user: Union[int, str]):
-    # query the database for the appropriate data. return error page if not in
-    return render_template(
-        "user.html", user_data=user_data, best_perfs=best_perfs, score_stats=stats
-    )
