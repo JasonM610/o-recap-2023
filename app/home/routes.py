@@ -1,6 +1,7 @@
 from flask import Blueprint, redirect, render_template, url_for
 from flask import current_app as app
-from .forms import UserForm
+from app.home.forms import UserForm
+from app.utils.api import get_user_data
 
 
 home_bp = Blueprint(
@@ -17,7 +18,12 @@ def index():
         mode = form.mode.data
 
         # if user isn't in database
+        user_data = get_user_data(user, mode)
 
-        return redirect(url_for("user", user=user))
+        for key, value in user_data.__dict__.items():
+            if not key.startswith("_"):
+                print(f"{key}: {value}")
+
+        # return redirect(url_for("user", user=user))
 
     return render_template("index.html", form=form, user=user)

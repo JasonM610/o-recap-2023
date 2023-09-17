@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
+from wtforms.validators import DataRequired
 
 
 class UserForm(FlaskForm):
-    user = StringField("Please enter your username or user ID:")
+    user = StringField("User ID:", validators=[DataRequired()])
     mode = SelectField(
         "Gamemode: ",
         choices=[
