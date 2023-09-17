@@ -1,7 +1,6 @@
 from flask import Blueprint, redirect, render_template, url_for
-from flask import current_app as app
 from app.home.forms import UserForm
-from app.utils.api import get_user_data
+from app.utils.api import get_user_data, get_best_scores
 
 
 home_bp = Blueprint(
@@ -19,10 +18,7 @@ def index():
 
         # if user isn't in database
         user_data = get_user_data(user, mode)
-
-        for key, value in user_data.__dict__.items():
-            if not key.startswith("_"):
-                print(f"{key}: {value}")
+        best_scores_data = get_best_scores(user, mode)
 
         # return redirect(url_for("user", user=user))
 

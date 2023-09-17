@@ -75,7 +75,7 @@ class BeatmapScore(db.Model):
     count_50 = db.Column(db.Integer)
     count_miss = db.Column(db.Integer)
     passed = db.Column(db.Boolean)
-    date = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
 
 
@@ -96,14 +96,5 @@ class UserBestScore(db.Model):
     rank = db.Column(db.Integer)
     score = db.Column(db.Integer)
     letter_grade = db.Column(db.String(2))
-    date = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
-
-
-# NOTES ON WHAT TO PRESERVE FROM API CALLS:
-# get user (/users/{user}/{mode}):
-#   id, avatar_url, country_code, username, monthly_playcounts, replays_watched_counts, badges
-# get user top scores (/users/{user}/scores/best?mode={mode}&limit=100):
-#   id, user_id, accuracy, created_at, pp, rank, beatmap{version}, beatmapset{artist, title, covers{list}}, maybe more here for aggregations
-# get user beatmap scores (/beatmaps/{beatmap}/scores/users/{user}/all):
-#   position, score{id, best_id, user_id, accuracy, mods, score, max_combo, statistics.count_300, statistics.count_100, statistics.count_50, passed, pp, rank, created_at, mode}
