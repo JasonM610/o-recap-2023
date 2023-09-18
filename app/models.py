@@ -1,9 +1,9 @@
-from enum import Enum
+from app import db
+from app.utils.enums import Mode, Status, Grade
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Identity
-from app import db
-from utils.enums import Mode, Status, Grade
+from enum import Enum
 
 
 class User(db.Model):

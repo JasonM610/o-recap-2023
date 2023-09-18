@@ -1,8 +1,9 @@
-import os, json, sys, datetime
-from typing import List, Union
-from oauthlib.oauth2 import BackendApplicationClient
+import os
+from datetime import datetime
+from typing import Any, Dict, List
 from requests import Response
 from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2 import BackendApplicationClient
 from app.models import User, UserBestScore
 
 client_id = os.environ.get("CLIENT_ID")
@@ -19,29 +20,19 @@ token = session.fetch_token(
 )
 
 
+def make_request(url: str) -> Response:
+    return session.request("GET", f"{base_url}/{url}")
+
+
 def get_user_data(user_id: int, mode: str) -> User:
     url = f"users/{user_id}/{mode}"
-    data = send_request(url).json()
+    data = make_request(url).json()
 
-    badges_2023 = [
-        badge["awarded_at"]
-        for badge in data["badges"]
-        if badge["awarded_at"][:4] == "2023"
-    ]
+    badges_2023 = filter_badges(data)
+    playcount_2023 = filter_playcount(data)
+    replays_2023 = filter_replays(data)
 
-    playcount_2023 = [
-        pc["count"]
-        for pc in data["monthly_playcounts"]
-        if pc["start_date"][:4] == "2023"
-    ]
-
-    replays_2023 = [
-        replay["count"]
-        for replay in data["replays_watched_counts"]
-        if replay["start_date"][:4] == "2023"
-    ]
-
-    user_data = User(
+    return User(
         user_id=data["id"],
         user_name=data["username"],
         country_code=data["country_code"],
@@ -53,39 +44,52 @@ def get_user_data(user_id: int, mode: str) -> User:
         mode=mode,
     )
 
-    return user_data
-
 
 def get_best_scores(user_id: int, mode: str) -> List[UserBestScore]:
     url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
-    data = send_request(url).json()
+    data = make_request(url).json()
     score_data = []
 
     for ind, play in enumerate(data):
-        score = UserBestScore(
-            score_id=play["id"],
-            user_id=play["user_id"],
-            beatmap_id=play["beatmap"]["id"],
-            accuracy=round(play["accuracy"], 4),
-            pp=play["pp"],
-            mods=",".join(play["mods"]),
-            rank=ind + 1,
-            score=play["score"],
-            letter_grade=play["rank"],
-            created_at=datetime.strptime(play["created_at"]),
-            mode=mode,
-        )
-        if score["created_at"].year == 2023:
-            score_data.append(score)
+        if play["created_at"][:4] == "2023":
+            score_data.append(
+                UserBestScore(
+                    score_id=play["id"],
+                    user_id=play["user_id"],
+                    beatmap_id=play["beatmap"]["id"],
+                    accuracy=round(play["accuracy"], 4),
+                    pp=play["pp"],
+                    mods=",".join(play["mods"]),
+                    rank=ind + 1,
+                    score=play["score"],
+                    letter_grade=play["rank"],
+                    created_at=play["created_at"],
+                    mode=mode,
+                )
+            )
 
     return score_data
 
 
-def send_request(url: str) -> Response:
-    return session.request("GET", f"{base_url}/{url}")
+def filter_badges(data: List[Dict[str, Any]]) -> List[str]:
+    return [
+        badge["awarded_at"]
+        for badge in data["badges"]
+        if badge["awarded_at"][:4] == "2023"
+    ]
 
 
-data = get_user_data(4394718, "osu")
-for key, value in data.__dict__.items():
-    if not key.startswith("_"):
-        print(f"{key}: {value}")
+def filter_playcount(data: List[Dict[str, Any]]) -> List[int]:
+    return [
+        playcount["count"]
+        for playcount in data["monthly_playcounts"]
+        if playcount["start_date"][:4] == "2023"
+    ]
+
+
+def filter_replays(data: List[Dict[str, Any]]) -> List[int]:
+    return [
+        replay["count"]
+        for replay in data["replays_watched_counts"]
+        if replay["start_date"][:4] == "2023"
+    ]
