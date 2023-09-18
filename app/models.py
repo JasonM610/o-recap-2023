@@ -49,7 +49,7 @@ class Beatmap(db.Model):
     mode = db.Column(db.Enum(Mode), default="osu")
 
 
-class BeatmapScore(db.Model):
+class Score(db.Model):
     """ """
 
     # __tablename__ = ...
@@ -59,7 +59,6 @@ class BeatmapScore(db.Model):
     accuracy = db.Column(db.Float)
     pp = db.Column(db.Float)
     mods = db.Column(db.String(32))
-    leaderboard_rank = db.Column(db.Integer)
     score = db.Column(db.Integer)
     letter_grade = db.Column(db.Enum(Grade))
     max_combo = db.Column(db.Integer)
@@ -72,22 +71,12 @@ class BeatmapScore(db.Model):
     mode = db.Column(db.Enum(Mode), default="osu")
 
 
-class UserBestScore(db.Model):
-    """
-    Data received from request to '/users/{user}/scores/best?limit=100&mode={mode}'
-    https://osu.ppy.sh/docs/index.html#get-user-scores
-    https://osu.ppy.sh/docs/index.html#score
-    """
+class UserBestPerformance(db.Model):
+    """ """
 
     # __tablename__ = ...
+
     score_id = db.Column(db.Integer, unique=True, primary_key=True)
-    user_id = db.Column(db.Integer, unique=True, nullable=False)
+    user_id = db.Column(db.Integer, unique=True, primary_key=True)
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
-    accuracy = db.Column(db.Float)
-    pp = db.Column(db.Float)
-    mods = db.Column(db.String(32))
-    rank = db.Column(db.Integer)
-    score = db.Column(db.Integer)
-    letter_grade = db.Column(db.Enum(Grade))
-    created_at = db.Column(db.DateTime)
-    mode = db.Column(db.Enum(Mode), default="osu")
+    performance_rank = db.Column(db.Integer)
