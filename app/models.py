@@ -3,14 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Identity
 from app import db
-
-
-# move this to another file w/ datetime help
-class Mode(Enum):
-    osu = "osu"
-    taiko = "taiko"
-    ctb = "fruits"
-    mania = "mania"
+from utils.enums import Mode, Status, Grade
 
 
 class User(db.Model):
@@ -22,7 +15,7 @@ class User(db.Model):
 
     # __tablename__ = ...
     user_id = db.Column(db.Integer, unique=True, primary_key=True)
-    user_name = db.Column(db.String(40), nullable=False)
+    user_name = db.Column(db.String(32), nullable=False)
     country_code = db.Column(db.String(2))
     avatar_url = db.Column(db.String(255))
     beatmaps_played_alltime = db.Column(db.Integer)
@@ -38,12 +31,12 @@ class Beatmap(db.Model):
     # __tablename__ = ...
     beatmap_id = db.Column(db.Integer, unique=True, primary_key=True)
     beatmapset_id = db.Column(db.Integer, nullable=False)
-    artist = db.Column(db.String(255), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    version = db.Column(db.String(255), nullable=False)
-    creator = db.Column(db.String(40), nullable=False)
+    artist = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(128), nullable=False)
+    version = db.Column(db.String(128), nullable=False)
+    creator = db.Column(db.String(32), nullable=False)
     play_count = db.Column(db.Integer)
-    status = db.Column(db.Enum(Status), default="???")  # figure this out
+    status = db.Column(db.Enum(Status))
     difficulty_rating = db.Column(db.Float)
     total_length = db.Column(db.Integer)
     bpm = db.Column(db.Float)
@@ -65,10 +58,10 @@ class BeatmapScore(db.Model):
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
     accuracy = db.Column(db.Float)
     pp = db.Column(db.Float)
-    mods = db.Column(db.String(40))
+    mods = db.Column(db.String(32))
     leaderboard_rank = db.Column(db.Integer)
     score = db.Column(db.Integer)
-    letter_grade = db.Column(db.String(2))
+    letter_grade = db.Column(db.Enum(Grade))
     max_combo = db.Column(db.Integer)
     count_300 = db.Column(db.Integer)
     count_100 = db.Column(db.Integer)
@@ -92,9 +85,9 @@ class UserBestScore(db.Model):
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
     accuracy = db.Column(db.Float)
     pp = db.Column(db.Float)
-    mods = db.Column(db.String(40))
+    mods = db.Column(db.String(32))
     rank = db.Column(db.Integer)
     score = db.Column(db.Integer)
-    letter_grade = db.Column(db.String(2))
+    letter_grade = db.Column(db.Enum(Grade))
     created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
