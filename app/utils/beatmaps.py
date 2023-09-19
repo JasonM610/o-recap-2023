@@ -27,7 +27,7 @@ def get_all_beatmaps() -> list[int]:
 def get_beatmaps_from_profile(user: Union[int, str]) -> list[int]:
     """
     Scrapes "Most Played" section on the userpage to build a list of all beatmaps a user has played
-    Note that some maps (< 1%) go missing, but more go missing for users that have played a lot of maps
+    Note that some maps (< 1%) go missing, and more go missing for users that have played a lot of maps
 
     Args:
         user (Union[int, str]): The user's ID or name. Keeping this flexible for now but may change with implementation later

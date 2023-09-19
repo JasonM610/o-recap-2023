@@ -1,10 +1,5 @@
-from typing import Any, Dict
 from app import db
 from app.utils.enums import Mode, Status, Grade
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Identity
-from enum import Enum
 
 
 class User(db.Model):
@@ -13,7 +8,8 @@ class User(db.Model):
     https://osu.ppy.sh/docs/index.html#user
     """
 
-    # __tablename__ = ...
+    __tablename__ = "Users"
+
     user_id = db.Column(db.Integer, unique=True, primary_key=True)
     user_name = db.Column(db.String(32), nullable=False)
     country_code = db.Column(db.String(2))
@@ -25,12 +21,12 @@ class User(db.Model):
     mode = db.Column(db.Enum(Mode), default="osu")
 
     def __init__(self, player, mode):
-        badges_2023 = self.filter_badges(player["badges"])
-        playcount_2023 = self.filter_playcount(player["monthly_playcounts"])
-        replays_2023 = self.filter_replays(player["replays_watched_counts"])
+        badges_2023 = self.filter_2023(player["badges"], "awarded_at")
+        playcount_2023 = self.filter_2023(player["monthly_playcounts"], "count")
+        replays_2023 = self.filter_2023(player["replays_watched_counts"], "count")
 
         self.user_id = player["id"]
-        self.user_name = player["username"]
+        self.username = player["username"]
         self.country_code = player["country_code"]
         self.avatar_url = player["avatar_url"]
         self.beatmaps_played_alltime = player["beatmap_playcounts_count"]
@@ -39,32 +35,31 @@ class User(db.Model):
         self.replays_watched_2023 = sum(replays_2023)
         self.mode = mode
 
-    def filter_badges(badge_data):
-        return [
-            badge["awarded_at"]
-            for badge in badge_data
-            if badge["awarded_at"][:4] == "2023"
-        ]
+    def to_dict(self):
+        return {
+            key: getattr(self, key)
+            for key in [
+                "user_id",
+                "username",
+                "country_code",
+                "avatar_url",
+                "beatmaps_played_alltime",
+                "badges_2023",
+                "playcount_2023",
+                "replays_watched_2023",
+                "mode",
+            ]
+        }
 
-    def filter_playcount(playcount_data):
-        return [
-            playcount["count"]
-            for playcount in playcount_data
-            if playcount["start_date"][:4] == "2023"
-        ]
-
-    def filter_replays(replays_data):
-        return [
-            replay["count"]
-            for replay in replays_data
-            if replay["start_date"][:4] == "2023"
-        ]
+    def filter_2023(self, data, filter_by):
+        return [entry[filter_by] for entry in data if entry["start_date"][:4] == "2023"]
 
 
 class Beatmap(db.Model):
     """ """
 
-    # __tablename__ = ...
+    __tablename__ = "Beatmaps"
+
     beatmap_id = db.Column(db.Integer, unique=True, primary_key=True)
     beatmapset_id = db.Column(db.Integer, nullable=False)
     artist = db.Column(db.String(128), nullable=False)
@@ -107,11 +102,37 @@ class Beatmap(db.Model):
         self.list_url = set["covers"]["list"]
         self.mode = map["mode"]
 
+    def to_dict(self):
+        return {
+            key: getattr(self, key)
+            for key in [
+                "beatmap_id",
+                "beatmapset_id",
+                "artist",
+                "title",
+                "version",
+                "creator",
+                "play_count",
+                "status",
+                "difficulty_rating",
+                "length",
+                "bpm",
+                "approach_rate",
+                "circle_size",
+                "overall_difficulty",
+                "hp_drain",
+                "cover_url",
+                "list_url",
+                "mode",
+            ]
+        }
+
 
 class Score(db.Model):
     """ """
 
-    # __tablename__ = ...
+    __tablename__ = "Scores"
+
     score_id = db.Column(db.Integer, unique=True, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, nullable=False)
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
@@ -134,8 +155,8 @@ class Score(db.Model):
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.accuracy = round(play["accuracy"], 4)
-        self.pp = play["pp"]
         self.mods = ",".join(play["mods"])
+        self.pp = play["pp"]
         self.score = play["score"]
         self.letter_grade = play["rank"]
         self.max_combo = play["max_combo"]
@@ -147,11 +168,34 @@ class Score(db.Model):
         self.created_at = play["created_at"]
         self.mode = mode
 
+    def to_dict(self):
+        return {
+            key: getattr(self, key)
+            for key in [
+                "score_id",
+                "user_id",
+                "beatmap_id",
+                "accuracy",
+                "mods",
+                "pp",
+                "score",
+                "letter_grade",
+                "max_combo",
+                "count_300",
+                "count_100",
+                "count_50",
+                "count_miss",
+                "passed",
+                "created_at",
+                "mode",
+            ]
+        }
+
 
 class BestScore(db.Model):
     """ """
 
-    # __tablename__ = ...
+    __tablename__ = "BestScores"
 
     score_id = db.Column(db.Integer, unique=True, primary_key=True)
     user_id = db.Column(db.Integer, unique=True, primary_key=True)
@@ -164,3 +208,9 @@ class BestScore(db.Model):
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
         self.mode = mode
+
+    def to_dict(self):
+        return {
+            key: getattr(self, key)
+            for key in ["score_id", "user_id", "beatmap_id", "performance_rank", "mode"]
+        }

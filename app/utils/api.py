@@ -33,8 +33,8 @@ def get_user_data(user_id: int, mode: str) -> User:
 
 def get_best_scores(
     user_id: int, mode: str
-) -> Tuple(List[Score], List[Beatmap], List[BestScore]):
-    url = f"users/{user_id}/scores/best?mode={mode}&limit=120"  # ? 120 might not work
+) -> Tuple[List[Score], List[Beatmap], List[BestScore]]:
+    url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
     data = make_request(url).json()
 
     score_data = [Score(play, mode) for play in data]
