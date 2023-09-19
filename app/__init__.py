@@ -8,8 +8,9 @@ db = SQLAlchemy()
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    app.config.from_object("config.Config")
 
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+    db.init_app(app)
 
     with app.app_context():
         from .home import routes
