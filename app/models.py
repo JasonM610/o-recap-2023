@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from app import db
 from app.utils.enums import Mode, Status, Grade
 from flask import Flask
@@ -9,7 +10,6 @@ from enum import Enum
 class User(db.Model):
     """
     data received from request to '/users/{user}/{mode}'
-    table needs to support SCD1 since users may change their usernames between requests
     https://osu.ppy.sh/docs/index.html#user
     """
 
@@ -23,6 +23,42 @@ class User(db.Model):
     playcount_2023 = db.Column(db.Integer, default=0)
     replays_watched_2023 = db.Column(db.Integer, default=0)
     mode = db.Column(db.Enum(Mode), default="osu")
+
+    def __init__(self, player, mode):
+        badges_2023 = self.filter_badges(player["badges"])
+        playcount_2023 = self.filter_playcount(player["monthly_playcounts"])
+        replays_2023 = self.filter_replays(player["replays_watched_counts"])
+
+        self.user_id = player["id"]
+        self.user_name = player["username"]
+        self.country_code = player["country_code"]
+        self.avatar_url = player["avatar_url"]
+        self.beatmaps_played_alltime = player["beatmap_playcounts_count"]
+        self.badges_2023 = len(badges_2023)
+        self.playcount_2023 = sum(playcount_2023)
+        self.replays_watched_2023 = sum(replays_2023)
+        self.mode = mode
+
+    def filter_badges(badge_data):
+        return [
+            badge["awarded_at"]
+            for badge in badge_data
+            if badge["awarded_at"][:4] == "2023"
+        ]
+
+    def filter_playcount(playcount_data):
+        return [
+            playcount["count"]
+            for playcount in playcount_data
+            if playcount["start_date"][:4] == "2023"
+        ]
+
+    def filter_replays(replays_data):
+        return [
+            replay["count"]
+            for replay in replays_data
+            if replay["start_date"][:4] == "2023"
+        ]
 
 
 class Beatmap(db.Model):
@@ -38,7 +74,7 @@ class Beatmap(db.Model):
     play_count = db.Column(db.Integer)
     status = db.Column(db.Enum(Status))
     difficulty_rating = db.Column(db.Float)
-    total_length = db.Column(db.Integer)
+    length = db.Column(db.Integer)
     bpm = db.Column(db.Float)
     approach_rate = db.Column(db.Float)
     circle_size = db.Column(db.Float)
@@ -47,6 +83,29 @@ class Beatmap(db.Model):
     cover_url = db.Column(db.String(255))
     list_url = db.Column(db.String(255))
     mode = db.Column(db.Enum(Mode), default="osu")
+
+    def __init__(self, play, mode):
+        map = play["beatmap"]
+        set = play["beatmapset"]
+
+        self.beatmap_id = map["id"]
+        self.beatmapset_id = map["beatmapset_id"]
+        self.artist = set["artist"]
+        self.title = set["title"]
+        self.version = map["version"]
+        self.creator = set["creator"]
+        self.play_count = map["playcount"]
+        self.status = map["status"]
+        self.difficulty_rating = map["difficulty_rating"]
+        self.length = map["hit_length"]
+        self.bpm = map["bpm"]
+        self.approach_rate = map["ar"]
+        self.circle_size = map["cs"]
+        self.overall_difficulty = map["accuracy"]
+        self.hp_drain = map["drain"]
+        self.cover_url = set["covers"]["cover"]
+        self.list_url = set["covers"]["list"]
+        self.mode = map["mode"]
 
 
 class Score(db.Model):
@@ -70,8 +129,26 @@ class Score(db.Model):
     created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
 
+    def __init__(self, play, mode):
+        self.score_id = play["id"]
+        self.user_id = play["user_id"]
+        self.beatmap_id = play["beatmap"]["id"]
+        self.accuracy = round(play["accuracy"], 4)
+        self.pp = play["pp"]
+        self.mods = ",".join(play["mods"])
+        self.score = play["score"]
+        self.letter_grade = play["rank"]
+        self.max_combo = play["max_combo"]
+        self.count_300 = play["statistics"]["count_300"]
+        self.count_100 = play["statistics"]["count_100"]
+        self.count_50 = play["statistics"]["count_50"]
+        self.count_miss = play["statistics"]["count_miss"]
+        self.passed = play["passed"]
+        self.created_at = play["created_at"]
+        self.mode = mode
 
-class UserBestPerformance(db.Model):
+
+class BestScore(db.Model):
     """ """
 
     # __tablename__ = ...
@@ -80,3 +157,10 @@ class UserBestPerformance(db.Model):
     user_id = db.Column(db.Integer, unique=True, primary_key=True)
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
     performance_rank = db.Column(db.Integer)
+
+    def __init__(self, idx, play, mode):
+        self.score_id = play["id"]
+        self.user_id = play["user_id"]
+        self.beatmap_id = play["beatmap"]["id"]
+        self.performance_rank = idx + 1
+        self.mode = mode
