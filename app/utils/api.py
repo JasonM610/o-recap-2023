@@ -1,10 +1,11 @@
-import os
+import os, json
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 from requests import Response
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
 from app.models import Beatmap, Score, User, BestScore
+from app.utils.enums import Mode
 
 client_id = os.environ.get("CLIENT_ID")
 client_secret = os.environ.get("CLIENT_SECRET")
@@ -24,17 +25,17 @@ def make_request(url: str) -> Response:
     return session.request("GET", f"{base_url}/{url}")
 
 
-def get_user_data(user_id: int, mode: str) -> User:
-    url = f"users/{user_id}/{mode}"
+def get_user_data(user: Union[int, str], mode: Mode) -> User:
+    url = f"users/{user}/{mode.value}"
     data = make_request(url).json()
 
     return User(data, mode)
 
 
 def get_best_scores(
-    user_id: int, mode: str
-) -> Tuple[List[Score], List[Beatmap], List[BestScore]]:
-    url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
+    user_id: int, mode: Mode
+) -> Tuple[List[BestScore], List[Score], List[Beatmap]]:
+    url = f"users/{user_id}/scores/best?mode={mode.value}&limit=100"
     data = make_request(url).json()
 
     score_data = [Score(play, mode) for play in data]

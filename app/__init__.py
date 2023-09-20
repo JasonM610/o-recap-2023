@@ -19,6 +19,8 @@ def create_app() -> Flask:
         app.register_blueprint(home.routes.home_bp)
         app.register_blueprint(users.routes.users_bp)
 
+        db.create_all()
+
     return app
 
 

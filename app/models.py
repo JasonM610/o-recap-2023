@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 from app import db
 from app.utils.enums import Mode, Status, Grade
 
@@ -14,7 +15,7 @@ class User(db.Model):
     __tablename__ = "Users"
 
     user_id = db.Column(db.Integer, unique=True, primary_key=True)
-    user_name = db.Column(db.String(32), nullable=False)
+    username = db.Column(db.String(32), nullable=False)
     country_code = db.Column(db.String(2))
     avatar_url = db.Column(db.String(255))
     beatmaps_played_alltime = db.Column(db.Integer)
@@ -23,10 +24,14 @@ class User(db.Model):
     replays_watched_2023 = db.Column(db.Integer, default=0)
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, player, mode):
-        badges_2023 = self.filter_2023(player["badges"], "awarded_at")
-        playcount_2023 = self.filter_2023(player["monthly_playcounts"], "count")
-        replays_2023 = self.filter_2023(player["replays_watched_counts"], "count")
+    def __init__(self, player: Dict[str, Any], mode: Mode) -> None:
+        badges_2023 = self.filter_2023(player["badges"], "description", "awarded_at")
+        playcount_2023 = self.filter_2023(
+            player["monthly_playcounts"], "count", "start_date"
+        )
+        replays_2023 = self.filter_2023(
+            player["replays_watched_counts"], "count", "start_date"
+        )
 
         self.user_id = player["id"]
         self.username = player["username"]
@@ -38,7 +43,22 @@ class User(db.Model):
         self.replays_watched_2023 = sum(replays_2023)
         self.mode = mode
 
-    def to_dict(self):
+    def upsert(self) -> None:
+        record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
+
+        if record_exists:
+            record_exists.username = self.username
+        else:
+            db.session.add(self)
+
+        db.session.commit()
+
+    def filter_2023(
+        self, data: List[Dict[str, Any]], filter_by: str, date_key: str
+    ) -> List[Any]:
+        return [entry[filter_by] for entry in data if entry[date_key][:4] == "2023"]
+
+    def to_dict(self) -> Dict[str, Any]:
         return {
             key: getattr(self, key)
             for key in [
@@ -53,9 +73,6 @@ class User(db.Model):
                 "mode",
             ]
         }
-
-    def filter_2023(self, data, filter_by):
-        return [entry[filter_by] for entry in data if entry["start_date"][:4] == "2023"]
 
 
 class Beatmap(db.Model):
@@ -88,7 +105,7 @@ class Beatmap(db.Model):
     list_url = db.Column(db.String(255))
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play, mode):
+    def __init__(self, play: Dict[str, Any], mode: Mode) -> None:
         map = play["beatmap"]
         set = play["beatmapset"]
 
@@ -111,7 +128,7 @@ class Beatmap(db.Model):
         self.list_url = set["covers"]["list"]
         self.mode = map["mode"]
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             key: getattr(self, key)
             for key in [
@@ -166,7 +183,7 @@ class Score(db.Model):
     created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play, mode):
+    def __init__(self, play: Dict[str, Any], mode: Mode) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
@@ -184,7 +201,7 @@ class Score(db.Model):
         self.created_at = play["created_at"]
         self.mode = mode
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             key: getattr(self, key)
             for key in [
@@ -224,14 +241,14 @@ class BestScore(db.Model):
     beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
     performance_rank = db.Column(db.Integer)
 
-    def __init__(self, idx, play, mode):
+    def __init__(self, idx: int, play: Dict[str, Any], mode: Mode) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
         self.mode = mode
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             key: getattr(self, key)
             for key in ["score_id", "user_id", "beatmap_id", "performance_rank", "mode"]
