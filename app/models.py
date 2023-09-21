@@ -19,41 +19,46 @@ class User(db.Model):
     country_code = db.Column(db.String(2))
     avatar_url = db.Column(db.String(255))
     beatmaps_played_alltime = db.Column(db.Integer)
+    achievements_2023 = db.Column(db.Integer, default=0)
     badges_2023 = db.Column(db.Integer, default=0)
     playcount_2023 = db.Column(db.Integer, default=0)
     replays_watched_2023 = db.Column(db.Integer, default=0)
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, player: Dict[str, Any], mode: Mode) -> None:
-        badges_2023 = self.filter_2023(player["badges"], "description", "awarded_at")
-        playcount_2023 = self.filter_2023(
-            player["monthly_playcounts"], "count", "start_date"
+    def __init__(self, user: Dict[str, Any], mode: str) -> None:
+        achievements_2023 = self.filter_by_2023(
+            user["user_achievements"], "achievement_id", "achieved_at"
         )
-        replays_2023 = self.filter_2023(
-            player["replays_watched_counts"], "count", "start_date"
+        badges_2023 = self.filter_by_2023(user["badges"], "description", "awarded_at")
+        playcount_2023 = self.filter_by_2023(
+            user["monthly_playcounts"], "count", "start_date"
+        )
+        replays_2023 = self.filter_by_2023(
+            user["replays_watched_counts"], "count", "start_date"
         )
 
-        self.user_id = player["id"]
-        self.username = player["username"]
-        self.country_code = player["country_code"]
-        self.avatar_url = player["avatar_url"]
-        self.beatmaps_played_alltime = player["beatmap_playcounts_count"]
+        self.user_id = user["id"]
+        self.username = user["username"]
+        self.country_code = user["country_code"]
+        self.avatar_url = user["avatar_url"]
+        self.beatmaps_played_alltime = user["beatmap_playcounts_count"]
+        self.achievements_2023 = len(achievements_2023)
         self.badges_2023 = len(badges_2023)
         self.playcount_2023 = sum(playcount_2023)
         self.replays_watched_2023 = sum(replays_2023)
-        self.mode = mode
+        self.mode = Mode(mode)
 
-    def upsert(self) -> None:
-        record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
+    # def upsert(self) -> None:
+    # record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
 
-        if record_exists:
-            record_exists.username = self.username
-        else:
-            db.session.add(self)
+    # if record_exists:
+    # record_exists.username = self.username
+    # else:
+    # db.session.add(self)
 
-        db.session.commit()
+    # db.session.commit()
 
-    def filter_2023(
+    def filter_by_2023(
         self, data: List[Dict[str, Any]], filter_by: str, date_key: str
     ) -> List[Any]:
         return [entry[filter_by] for entry in data if entry[date_key][:4] == "2023"]
@@ -105,7 +110,7 @@ class Beatmap(db.Model):
     list_url = db.Column(db.String(255))
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play: Dict[str, Any], mode: Mode) -> None:
+    def __init__(self, play: Dict[str, Any], mode: str) -> None:
         map = play["beatmap"]
         set = play["beatmapset"]
 
@@ -116,7 +121,7 @@ class Beatmap(db.Model):
         self.version = map["version"]
         self.creator = set["creator"]
         self.play_count = map["playcount"]
-        self.status = map["status"]
+        self.status = Status(map["status"])
         self.difficulty_rating = map["difficulty_rating"]
         self.length = map["hit_length"]
         self.bpm = map["bpm"]
@@ -126,7 +131,7 @@ class Beatmap(db.Model):
         self.hp_drain = map["drain"]
         self.cover_url = set["covers"]["cover"]
         self.list_url = set["covers"]["list"]
-        self.mode = map["mode"]
+        self.mode = Mode(map["mode"])
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -166,9 +171,9 @@ class Score(db.Model):
 
     __tablename__ = "Scores"
 
-    score_id = db.Column(db.Integer, unique=True, primary_key=True)
-    user_id = db.Column(db.Integer, unique=True, nullable=False)
-    beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
+    score_id = db.Column(db.BigInteger, unique=True, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    beatmap_id = db.Column(db.Integer, nullable=False)
     accuracy = db.Column(db.Float)
     pp = db.Column(db.Float)
     mods = db.Column(db.String(32))
@@ -183,7 +188,7 @@ class Score(db.Model):
     created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play: Dict[str, Any], mode: Mode) -> None:
+    def __init__(self, play: Dict[str, Any], mode: str) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
@@ -191,7 +196,7 @@ class Score(db.Model):
         self.mods = ",".join(play["mods"])
         self.pp = play["pp"]
         self.score = play["score"]
-        self.letter_grade = play["rank"]
+        self.letter_grade = Grade(play["rank"])
         self.max_combo = play["max_combo"]
         self.count_300 = play["statistics"]["count_300"]
         self.count_100 = play["statistics"]["count_100"]
@@ -199,7 +204,7 @@ class Score(db.Model):
         self.count_miss = play["statistics"]["count_miss"]
         self.passed = play["passed"]
         self.created_at = play["created_at"]
-        self.mode = mode
+        self.mode = Mode(mode)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -235,18 +240,18 @@ class BestScore(db.Model):
     """
 
     __tablename__ = "BestScores"
-
-    score_id = db.Column(db.Integer, unique=True, primary_key=True)
-    user_id = db.Column(db.Integer, unique=True, primary_key=True)
-    beatmap_id = db.Column(db.Integer, unique=True, nullable=False)
+    best_score_sk = db.Column(db.Integer, primary_key=True)
+    score_id = db.Column(db.BigInteger, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    beatmap_id = db.Column(db.Integer, nullable=False)
     performance_rank = db.Column(db.Integer)
 
-    def __init__(self, idx: int, play: Dict[str, Any], mode: Mode) -> None:
+    def __init__(self, idx: int, play: Dict[str, Any], mode: str) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
-        self.mode = mode
+        self.mode = Mode(mode)
 
     def to_dict(self) -> Dict[str, Any]:
         return {

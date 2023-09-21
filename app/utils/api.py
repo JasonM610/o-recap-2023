@@ -25,17 +25,17 @@ def make_request(url: str) -> Response:
     return session.request("GET", f"{base_url}/{url}")
 
 
-def get_user_data(user: Union[int, str], mode: Mode) -> User:
-    url = f"users/{user}/{mode.value}"
+def get_user_data(user: Union[int, str], mode: str) -> User:
+    url = f"users/{user}/{mode}"
     data = make_request(url).json()
 
     return User(data, mode)
 
 
 def get_best_scores(
-    user_id: int, mode: Mode
+    user_id: int, mode: str
 ) -> Tuple[List[BestScore], List[Score], List[Beatmap]]:
-    url = f"users/{user_id}/scores/best?mode={mode.value}&limit=100"
+    url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
     data = make_request(url).json()
 
     score_data = [Score(play, mode) for play in data]
