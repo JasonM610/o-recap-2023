@@ -42,4 +42,4 @@ def get_best_scores(
     beatmap_data = [Beatmap(play, mode) for play in data]
     top_play_data = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
 
-    return score_data, beatmap_data, top_play_data
+    return top_play_data, score_data, beatmap_data

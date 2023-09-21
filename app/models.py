@@ -14,7 +14,7 @@ class User(db.Model):
 
     __tablename__ = "Users"
 
-    user_id = db.Column(db.Integer, unique=True, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False)
     country_code = db.Column(db.String(2))
     avatar_url = db.Column(db.String(255))
@@ -48,15 +48,15 @@ class User(db.Model):
         self.replays_watched_2023 = sum(replays_2023)
         self.mode = Mode(mode)
 
-    # def upsert(self) -> None:
-    # record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
+    def upsert(self) -> bool:
+        record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
 
-    # if record_exists:
-    # record_exists.username = self.username
-    # else:
-    # db.session.add(self)
+        if record_exists:
+            record_exists.username = self.username
+        else:
+            db.session.add(self)
 
-    # db.session.commit()
+        return record_exists
 
     def filter_by_2023(
         self, data: List[Dict[str, Any]], filter_by: str, date_key: str
@@ -72,6 +72,7 @@ class User(db.Model):
                 "country_code",
                 "avatar_url",
                 "beatmaps_played_alltime",
+                "achievements_2023",
                 "badges_2023",
                 "playcount_2023",
                 "replays_watched_2023",
@@ -91,12 +92,13 @@ class Beatmap(db.Model):
 
     __tablename__ = "Beatmaps"
 
-    beatmap_id = db.Column(db.Integer, unique=True, primary_key=True)
+    beatmap_id = db.Column(db.Integer, primary_key=True)
     beatmapset_id = db.Column(db.Integer, nullable=False)
     artist = db.Column(db.String(128), nullable=False)
     title = db.Column(db.String(128), nullable=False)
     version = db.Column(db.String(128), nullable=False)
     creator = db.Column(db.String(32), nullable=False)
+    creator_id = db.Column(db.Integer, nullable=False)
     play_count = db.Column(db.Integer)
     status = db.Column(db.Enum(Status))
     difficulty_rating = db.Column(db.Float)
@@ -120,6 +122,7 @@ class Beatmap(db.Model):
         self.title = set["title"]
         self.version = map["version"]
         self.creator = set["creator"]
+        self.creator_id = set["user_id"]
         self.play_count = map["playcount"]
         self.status = Status(map["status"])
         self.difficulty_rating = map["difficulty_rating"]
@@ -133,6 +136,16 @@ class Beatmap(db.Model):
         self.list_url = set["covers"]["list"]
         self.mode = Mode(map["mode"])
 
+    def add_if_not_exists(self) -> bool:
+        record_exists = (
+            db.session.query(Beatmap).filter_by(beatmap_id=self.beatmap_id).first()
+        )
+
+        if not record_exists:
+            db.session.add(self)
+
+        return record_exists
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             key: getattr(self, key)
@@ -143,6 +156,7 @@ class Beatmap(db.Model):
                 "title",
                 "version",
                 "creator",
+                "creator_id",
                 "play_count",
                 "status",
                 "difficulty_rating",
@@ -171,7 +185,7 @@ class Score(db.Model):
 
     __tablename__ = "Scores"
 
-    score_id = db.Column(db.BigInteger, unique=True, primary_key=True)
+    score_id = db.Column(db.BigInteger, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     beatmap_id = db.Column(db.Integer, nullable=False)
     accuracy = db.Column(db.Float)
@@ -205,6 +219,16 @@ class Score(db.Model):
         self.passed = play["passed"]
         self.created_at = play["created_at"]
         self.mode = Mode(mode)
+
+    def add_if_not_exists(self) -> bool:
+        record_exists = (
+            db.session.query(Score).filter_by(score_id=self.score_id).first()
+        )
+
+        if not record_exists:
+            db.session.add(self)
+
+        return record_exists
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -240,8 +264,8 @@ class BestScore(db.Model):
     """
 
     __tablename__ = "BestScores"
-    best_score_sk = db.Column(db.Integer, primary_key=True)
-    score_id = db.Column(db.BigInteger, nullable=False)
+
+    score_id = db.Column(db.BigInteger, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     beatmap_id = db.Column(db.Integer, nullable=False)
     performance_rank = db.Column(db.Integer)
