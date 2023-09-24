@@ -7,7 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-base_url = "https://osu.ppy.sh/u"
+async def insert_all_scores(user_id: int, mode: str) -> None:
+    return
 
 
 def fetch_all_beatmaps() -> list[int]:
@@ -33,7 +34,7 @@ def fetch_beatmaps_from_profile(user_id: int) -> list[int]:
     Returns:
         list[int]: A list of beatmap IDs from maps played by the user
     """
-    user_url = f"{base_url}/{user_id}"
+    user_url = f"https://osu.ppy.sh/users/{user_id}"
     driver = webdriver.Chrome()
     driver.get(user_url)
 

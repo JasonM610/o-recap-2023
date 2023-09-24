@@ -2,7 +2,8 @@ from flask import Blueprint, redirect, render_template, url_for
 import asyncio
 from app import db
 from app.home.forms import UserForm
-from app.utils.api import get_user_data, get_best_scores, get_beatmaps_from_historical
+from app.utils.api import get_user_data, get_best_scores
+from app.utils.beatmaps import insert_all_scores
 
 
 home_bp = Blueprint(
@@ -24,13 +25,13 @@ def index():
         user_in_db = user.upsert()
 
         if not user_in_db:
-            for beatmap, score, top_play in get_best_scores(user_id, mode_input):
+            for best_score, score, beatmap in get_best_scores(user_id, mode_input):
                 beatmap.add_if_not_exists()
                 score.add_if_not_exists()
-                db.session.add(top_play)
+                db.session.add(best_score)
 
         db.session.commit()
-        asyncio.create_task(get_beatmaps_from_historical(user_id, mode_input))
+        asyncio.create_task(insert_all_scores(user_id, mode_input))
 
         # return redirect(url_for("user", user=user))
 

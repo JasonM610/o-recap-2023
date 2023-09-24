@@ -38,13 +38,20 @@ def get_best_scores(
     url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
     data = make_request(url).json()
 
-    score_data = [Score(play, mode) for play in data]
-    beatmap_data = [Beatmap(play, mode) for play in data]
-    top_play_data = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
+    best_scores = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
+    scores = [Score(play, mode) for play in data]
+    beatmaps = [Beatmap(play, mode) for play in data]
 
-    return top_play_data, score_data, beatmap_data
+    return best_scores, scores, beatmaps
 
 
-async def get_beatmaps_from_historical(user_id: int, mode: str) -> List[Beatmap]:
-    beatmap_ids = fetch_beatmaps_from_profile(user_id)
-    return
+def get_scores(
+    user_id: int, beatmap_id: int, mode: str
+) -> Tuple[List[Score], List[Beatmap]]:
+    url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
+    data = make_request(url).json()
+
+    beatmap = Beatmap(data, mode)
+    scores = [Score(play, mode) for play in data]
+
+    return scores, beatmap
