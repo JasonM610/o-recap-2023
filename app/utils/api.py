@@ -1,11 +1,11 @@
-import os, json
-from datetime import datetime
-from typing import Any, Dict, List, Tuple, Union
+import os
+from typing import List, Tuple, Union
 from requests import Response
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
 from app.models import Beatmap, Score, User, BestScore
-from app.utils.enums import Mode
+from app.utils.beatmaps import fetch_beatmaps_from_profile
+
 
 client_id = os.environ.get("CLIENT_ID")
 client_secret = os.environ.get("CLIENT_SECRET")
@@ -43,3 +43,8 @@ def get_best_scores(
     top_play_data = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
 
     return top_play_data, score_data, beatmap_data
+
+
+async def get_beatmaps_from_historical(user_id: int, mode: str) -> List[Beatmap]:
+    beatmap_ids = fetch_beatmaps_from_profile(user_id)
+    return

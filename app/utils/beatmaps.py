@@ -1,5 +1,4 @@
 import time
-from typing import Union
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import TimeoutException
@@ -9,10 +8,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 base_url = "https://osu.ppy.sh/u"
-beatmap_ids = []
 
 
-def get_all_beatmaps() -> list[int]:
+def fetch_all_beatmaps() -> list[int]:
     """
     Builds list of ranked and loved beatmaps. Sourced from https://osu.respektive.pw/beatmaps.
     If used, this will be called for users that have played a lot of beatmaps (25,000+)
@@ -21,10 +19,10 @@ def get_all_beatmaps() -> list[int]:
         list[int]: A list of all ranked and loved beatmap IDs
     """
 
-    return beatmap_ids
+    return
 
 
-def get_beatmaps_from_profile(user: Union[int, str]) -> list[int]:
+def fetch_beatmaps_from_profile(user_id: int) -> list[int]:
     """
     Scrapes "Most Played" section on the userpage to build a list of all beatmaps a user has played
     Note that some maps (< 1%) go missing, and more go missing for users that have played a lot of maps
@@ -35,7 +33,7 @@ def get_beatmaps_from_profile(user: Union[int, str]) -> list[int]:
     Returns:
         list[int]: A list of beatmap IDs from maps played by the user
     """
-    user_url = f"{base_url}/{user}"
+    user_url = f"{base_url}/{user_id}"
     driver = webdriver.Chrome()
     driver.get(user_url)
 
@@ -74,6 +72,3 @@ def get_beatmaps_from_profile(user: Union[int, str]) -> list[int]:
     beatmap_ids = [url.split("/")[-1] for url in beatmap_urls]
 
     return beatmap_ids
-
-
-get_beatmaps_from_profile("waddlelad")

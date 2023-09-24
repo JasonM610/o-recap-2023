@@ -26,26 +26,20 @@ class User(db.Model):
     mode = db.Column(db.Enum(Mode), default="osu")
 
     def __init__(self, user: Dict[str, Any], mode: str) -> None:
-        achievements_2023 = self.filter_by_2023(
-            user["user_achievements"], "achievement_id", "achieved_at"
-        )
-        badges_2023 = self.filter_by_2023(user["badges"], "description", "awarded_at")
-        playcount_2023 = self.filter_by_2023(
-            user["monthly_playcounts"], "count", "start_date"
-        )
-        replays_2023 = self.filter_by_2023(
-            user["replays_watched_counts"], "count", "start_date"
-        )
+        achieves = self.filter(user["user_achievements"], "achieved_at", "achieved_at")
+        badges = self.filter(user["badges"], "description", "awarded_at")
+        playcount = self.filter(user["monthly_playcounts"], "count", "start_date")
+        replays = self.filter(user["replays_watched_counts"], "count", "start_date")
 
         self.user_id = user["id"]
         self.username = user["username"]
         self.country_code = user["country_code"]
         self.avatar_url = user["avatar_url"]
         self.beatmaps_played_alltime = user["beatmap_playcounts_count"]
-        self.achievements_2023 = len(achievements_2023)
-        self.badges_2023 = len(badges_2023)
-        self.playcount_2023 = sum(playcount_2023)
-        self.replays_watched_2023 = sum(replays_2023)
+        self.achievements_2023 = len(achieves)
+        self.badges_2023 = len(badges)
+        self.playcount_2023 = sum(playcount)
+        self.replays_watched_2023 = sum(replays)
         self.mode = Mode(mode)
 
     def upsert(self) -> bool:
@@ -58,27 +52,8 @@ class User(db.Model):
 
         return record_exists
 
-    def filter_by_2023(
-        self, data: List[Dict[str, Any]], filter_by: str, date_key: str
-    ) -> List[Any]:
-        return [entry[filter_by] for entry in data if entry[date_key][:4] == "2023"]
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            key: getattr(self, key)
-            for key in [
-                "user_id",
-                "username",
-                "country_code",
-                "avatar_url",
-                "beatmaps_played_alltime",
-                "achievements_2023",
-                "badges_2023",
-                "playcount_2023",
-                "replays_watched_2023",
-                "mode",
-            ]
-        }
+    def filter(self, data: List[Dict[str, Any]], agg: str, date: str) -> List[Any]:
+        return [entry[agg] for entry in data if entry[date][:4] == "2023"]
 
 
 class Beatmap(db.Model):
@@ -110,6 +85,7 @@ class Beatmap(db.Model):
     hp_drain = db.Column(db.Float)
     cover_url = db.Column(db.String(255))
     list_url = db.Column(db.String(255))
+    last_updated = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode), default="osu")
 
     def __init__(self, play: Dict[str, Any], mode: str) -> None:
@@ -134,6 +110,7 @@ class Beatmap(db.Model):
         self.hp_drain = map["drain"]
         self.cover_url = set["covers"]["cover"]
         self.list_url = set["covers"]["list"]
+        self.last_updated = map["last_updated"]
         self.mode = Mode(map["mode"])
 
     def add_if_not_exists(self) -> bool:
@@ -145,32 +122,6 @@ class Beatmap(db.Model):
             db.session.add(self)
 
         return record_exists
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            key: getattr(self, key)
-            for key in [
-                "beatmap_id",
-                "beatmapset_id",
-                "artist",
-                "title",
-                "version",
-                "creator",
-                "creator_id",
-                "play_count",
-                "status",
-                "difficulty_rating",
-                "length",
-                "bpm",
-                "approach_rate",
-                "circle_size",
-                "overall_difficulty",
-                "hp_drain",
-                "cover_url",
-                "list_url",
-                "mode",
-            ]
-        }
 
 
 class Score(db.Model):
@@ -230,29 +181,6 @@ class Score(db.Model):
 
         return record_exists
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            key: getattr(self, key)
-            for key in [
-                "score_id",
-                "user_id",
-                "beatmap_id",
-                "accuracy",
-                "mods",
-                "pp",
-                "score",
-                "letter_grade",
-                "max_combo",
-                "count_300",
-                "count_100",
-                "count_50",
-                "count_miss",
-                "passed",
-                "created_at",
-                "mode",
-            ]
-        }
-
 
 class BestScore(db.Model):
     """
@@ -276,9 +204,3 @@ class BestScore(db.Model):
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
         self.mode = Mode(mode)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            key: getattr(self, key)
-            for key in ["score_id", "user_id", "beatmap_id", "performance_rank", "mode"]
-        }
