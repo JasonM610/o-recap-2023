@@ -23,6 +23,7 @@ class User(db.Model):
     badges_2023 = db.Column(db.Integer, default=0)
     playcount_2023 = db.Column(db.Integer, default=0)
     replays_watched_2023 = db.Column(db.Integer, default=0)
+    scores_loaded = db.Column(db.Boolean, default=False)
     mode = db.Column(db.Enum(Mode), default="osu")
 
     def __init__(self, user: Dict[str, Any], mode: str) -> None:
@@ -40,6 +41,7 @@ class User(db.Model):
         self.badges_2023 = len(badges)
         self.playcount_2023 = sum(playcount)
         self.replays_watched_2023 = sum(replays)
+        self.scores_loaded = False
         self.mode = Mode(mode)
 
     def upsert(self) -> bool:
@@ -52,8 +54,8 @@ class User(db.Model):
 
         return record_exists
 
-    def filter(self, data: List[Dict[str, Any]], agg: str, date: str) -> List[Any]:
-        return [entry[agg] for entry in data if entry[date][:4] == "2023"]
+    def filter(self, data: List[Dict[str, Any]], agg_by: str, date: str) -> List[Any]:
+        return [entry[agg_by] for entry in data if entry[date][:4] == "2023"]
 
 
 class Beatmap(db.Model):
