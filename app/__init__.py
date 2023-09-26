@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+import boto3
 
 db = SQLAlchemy()
 
@@ -19,6 +19,8 @@ def create_app() -> Flask:
         app.register_blueprint(users.routes.users_bp)
 
         db.create_all()
+
+        sqs = boto3.client("sqs", region_name=app.config.REGION)
 
     return app
 

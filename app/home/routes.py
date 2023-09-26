@@ -1,8 +1,7 @@
 from flask import Blueprint, redirect, render_template, url_for
-from app import db
+from app import db, sqs
 from app.home.forms import UserForm
 from app.utils.api import get_user_data, get_best_scores
-from app.utils.beatmaps import insert_all_scores
 
 
 home_bp = Blueprint(
@@ -32,6 +31,8 @@ def index():
                 beatmap.add_if_not_exists()
                 score.add_if_not_exists()
                 db.session.add(best_score)
+
+            # send to SQS
 
         db.session.commit()
 
