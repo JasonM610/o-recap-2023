@@ -1,5 +1,4 @@
 from flask import Blueprint, redirect, render_template, url_for
-import asyncio
 from app import db
 from app.home.forms import UserForm
 from app.utils.api import get_user_data, get_best_scores
@@ -21,6 +20,10 @@ def index():
         mode_input = form.mode.data
 
         user = get_user_data(user_input, mode_input)
+        if user is None:
+            # notify the user
+            return redirect(url_for("home_bp.index"))
+
         user_id = user.user_id
         user_in_db = user.upsert()
 
@@ -31,7 +34,6 @@ def index():
                 db.session.add(best_score)
 
         db.session.commit()
-        asyncio.create_task(insert_all_scores(user_id, mode_input))
 
         # return redirect(url_for("user", user=user))
 
