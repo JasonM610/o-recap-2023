@@ -4,7 +4,6 @@ from requests import RequestException, Response
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
 from app.models import Beatmap, Score, User, BestScore
-from app.utils.beatmaps import fetch_beatmaps_from_profile
 
 
 client_id = os.environ.get("CLIENT_ID")
@@ -12,7 +11,6 @@ client_secret = os.environ.get("CLIENT_SECRET")
 
 base_url = "https://osu.ppy.sh/api/v2/"
 token_url = "https://osu.ppy.sh/oauth/token"
-
 
 client = BackendApplicationClient(client_id=client_id, scope=["public"])
 session = OAuth2Session(client=client)

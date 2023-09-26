@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import boto3
 
 db = SQLAlchemy()
+sqs = boto3.client("sqs", region_name="us-east-2")
 
 
 def create_app() -> Flask:
@@ -19,8 +20,6 @@ def create_app() -> Flask:
         app.register_blueprint(users.routes.users_bp)
 
         db.create_all()
-
-        sqs = boto3.client("sqs", region_name=app.config.REGION)
 
     return app
 

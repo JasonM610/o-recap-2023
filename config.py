@@ -14,4 +14,4 @@ class Config:
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    REGION = os.environ.get("REGION")
+    QUEUE_URL = os.environ.get("QUEUE_URL")

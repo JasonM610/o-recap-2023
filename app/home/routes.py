@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 from app import db, sqs
 from app.home.forms import UserForm
 from app.utils.api import get_user_data, get_best_scores
@@ -19,22 +19,26 @@ def index():
         mode_input = form.mode.data
 
         user = get_user_data(user_input, mode_input)
-        if user is None:
-            # notify the user
-            return redirect(url_for("home_bp.index"))
+        if user:
+            user_id = user.user_id
+            user_in_db = user.upsert()
 
-        user_id = user.user_id
-        user_in_db = user.upsert()
+            if not user_in_db:
+                best_scores, scores, beatmaps = get_best_scores(user_id, mode_input)
 
-        if not user_in_db:
-            for best_score, score, beatmap in get_best_scores(user_id, mode_input):
-                beatmap.add_if_not_exists()
-                score.add_if_not_exists()
-                db.session.add(best_score)
+                for beatmap, score in zip(beatmaps, scores):
+                    beatmap.add_if_not_exists()
+                    score.add_if_not_exists()
+                db.session.add_all(best_scores)
 
-            # send to SQS
+                # send to SQS. comment out for now
+                # sqs.send_message(
+                # QueueUrl=current_app.config["QUEUE_URL"], MessageBody=str(user_id)
+                # )
 
-        db.session.commit()
+            db.session.commit()
+        else:
+            flash("User not found!")
 
         # return redirect(url_for("user", user=user))
 
