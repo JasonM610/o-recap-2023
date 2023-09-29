@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{url_for('.static', filename='css/main.css')}}">
     <title>osu! Wrapped 2023</title>
 </head>
 <body>
-    <form method="POST"> 
-        {{ form.hidden_tag() }}
-        {{ form.user.label }} {{ form.user() }}
-        {{ form.mode.label }} {{ form.mode() }}
-        {{ form.submit() }}
-    </form>
+    <nav>
+        <!-- add navigation bar -->
+    </nav>
+    <div class="form-container">
+        <form method="POST"> 
+            {{ form.hidden_tag() }}
+            <div class="form-input">
+                {{ form.user(placeholder="Username/ID", class_="form-user") }}
+                {{ form.mode(class_="form-mode") }}
+            </div>
+            <div class="form-submit">
+                {{ form.submit() }}
+            </div>
+        </form>
+    </div>
 </body>
 </html>
