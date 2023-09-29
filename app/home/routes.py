@@ -4,12 +4,16 @@ from app.home.forms import UserForm
 from app.utils.api import get_user_data, get_best_scores
 
 
-home_bp = Blueprint(
-    "home_bp", __name__, template_folder="templates", static_folder="static"
+home = Blueprint(
+    "home",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+    static_url_path="/home/static",
 )
 
 
-@home_bp.route("/", methods=["GET", "POST"])
+@home.route("/", methods=["GET", "POST"])
 def index():
     user_input = False
     form = UserForm()

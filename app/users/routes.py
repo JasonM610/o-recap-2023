@@ -1,10 +1,14 @@
 from flask import Blueprint, redirect, render_template, url_for
 
-users_bp = Blueprint(
-    "users_bp", __name__, template_folder="templates", static_folder="static"
+users = Blueprint(
+    "users",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+    static_url_path="/users/static",
 )
 
 
-@users_bp.route("/users/<user>/<mode>", methods=["GET"])
+@users.route("/users/<user>/<mode>", methods=["GET"])
 def user():
     return

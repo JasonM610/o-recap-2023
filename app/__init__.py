@@ -7,7 +7,7 @@ sqs = boto3.client("sqs", region_name="us-east-2")
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="templates")
     app.config.from_object("config.Config")
 
     db.init_app(app)
@@ -16,12 +16,12 @@ def create_app() -> Flask:
         from .home import routes
         from .users import routes
 
-        app.register_blueprint(home.routes.home_bp)
-        app.register_blueprint(users.routes.users_bp)
+        app.register_blueprint(home.routes.home)
+        app.register_blueprint(users.routes.users)
 
         db.create_all()
 
-    return app
+        return app
 
 
 if __name__ == "__main__":
