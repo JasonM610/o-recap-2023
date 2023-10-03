@@ -7,10 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-async def insert_all_scores(user_id: int, mode: str) -> None:
-    return
-
-
 def fetch_all_beatmaps() -> list[int]:
     """
     Builds list of ranked and loved beatmaps. Sourced from https://osu.respektive.pw/beatmaps.
