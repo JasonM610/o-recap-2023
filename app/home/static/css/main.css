@@ -17,7 +17,6 @@ body {
 
 .form-input {
     padding: 8px;
-    font-family: Arial, Helvetica, sans-serif;
     display: flex;
     width: 500px;
     height: 35px;
@@ -27,6 +26,7 @@ body {
 .form-user {
     border-right: 0;
     border-left: 2;
+    font-family: sans-serif;
     width: 83%;
     padding: 8px;
     border: 1px solid rgb(120, 120, 120);
@@ -40,6 +40,7 @@ body {
 .form-mode {
     appearance: none;
     padding: 1px;
+    font-family: sans-serif;
     border-radius: 0;
     background-color: rgb(120, 120, 120);
     color: rgb(255, 255, 255);
@@ -60,7 +61,7 @@ body {
     background-color: rgb(120, 120, 120);
     color: rgb(255, 255, 255);
     border: none;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: sans-serif;
     padding: 8px 16px;
     cursor: pointer;
 }

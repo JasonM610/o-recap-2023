@@ -5,9 +5,8 @@ from app.utils.enums import Mode
 
 
 class UserForm(FlaskForm):
-    user = StringField("User ID: ", validators=[DataRequired()])
+    user = StringField(validators=[DataRequired()])
     mode = SelectField(
-        "Gamemode: ",
         choices=[
             ("osu", "osu"),
             ("taiko", "Taiko"),
@@ -15,4 +14,4 @@ class UserForm(FlaskForm):
             ("mania", "Mania"),
         ],
     )
-    submit = SubmitField("Submit")
+    submit = SubmitField("Get your stats!")

@@ -1,7 +1,8 @@
+import os
 from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 from app import db, sqs
 from app.home.forms import UserForm
-from app.utils.api import get_user_data, get_best_scores
+from app.utils.osu import get_user_data, get_best_scores
 
 
 home = Blueprint(
@@ -36,9 +37,9 @@ def index():
                 db.session.add_all(best_scores)
 
                 # send to SQS. comment out for now
-                # sqs.send_message(
-                # QueueUrl=current_app.config["QUEUE_URL"], MessageBody=str(user_id)
-                # )
+                sqs.send_message(
+                QueueUrl=os.environ.get("QUEUE_URL"), MessageBody=str(user_id)
+                )
 
             db.session.commit()
         else:
