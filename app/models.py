@@ -205,6 +205,7 @@ class BestScore(db.Model):
     creator_id = db.Column(db.Integer, nullable=False)
     cover_url = db.Column(db.String(255))
     list_url = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime)
     mode = db.Column(db.Enum(Mode))
 
     def __init__(self, idx: int, play: Dict[str, Any], mode: str) -> None:
@@ -215,7 +216,7 @@ class BestScore(db.Model):
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
-        self.accuracy = play["accuracy"]
+        self.accuracy = round(play["accuracy"], 4)
         self.pp = play["pp"]
         self.mods = ",".join(play["mods"])
         self.letter_grade = Grade(play["rank"])
@@ -225,13 +226,16 @@ class BestScore(db.Model):
         self.creator_id = set["user_id"]
         self.cover_url = set["covers"]["cover"]
         self.list_url = set["covers"]["list"]
+        self.created_at = play["created_at"]
         self.mode = Mode(mode)
 
     def add_if_not_exists(self) -> None:
         if self is None:
             return
 
-        score_exists = db.session.query(Score).filter_by(score_id=self.score_id).first()
+        score_exists = (
+            db.session.query(BestScore).filter_by(score_id=self.score_id).first()
+        )
 
         if not score_exists:
             db.session.add(self)
