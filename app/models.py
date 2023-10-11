@@ -9,7 +9,7 @@ class User(db.Model):
     https://osu.ppy.sh/docs/index.html#user
 
     User data is returned for every valid request passing through the application:
-        GET ".../users/{user}/{mode}"
+        GET ".../users/{user}"
     """
 
     __tablename__ = "Users"
@@ -18,15 +18,14 @@ class User(db.Model):
     username = db.Column(db.String(32), nullable=False)
     country_code = db.Column(db.String(2))
     avatar_url = db.Column(db.String(255))
-    beatmaps_played_alltime = db.Column(db.Integer)
+    beatmaps_played_alltime = db.Column(db.Integer, default=0)
     achievements_2023 = db.Column(db.Integer, default=0)
     badges_2023 = db.Column(db.Integer, default=0)
     playcount_2023 = db.Column(db.Integer, default=0)
     replays_watched_2023 = db.Column(db.Integer, default=0)
     scores_status = db.Column(db.Boolean, default=False)
-    mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, user: Dict[str, Any], mode: str) -> None:
+    def __init__(self, user: Dict[str, Any]) -> None:
         achieves = self.filter(user["user_achievements"], "achieved_at", "achieved_at")
         badges = self.filter(user["badges"], "description", "awarded_at")
         playcount = self.filter(user["monthly_playcounts"], "count", "start_date")
@@ -42,17 +41,17 @@ class User(db.Model):
         self.playcount_2023 = sum(playcount)
         self.replays_watched_2023 = sum(replays)
         self.scores_status = False
-        self.mode = Mode(mode)
 
-    def upsert(self) -> bool:
-        record_exists = db.session.query(User).filter_by(user_id=self.user_id).first()
+    def insert_or_update(self) -> bool:
+        current_user = db.session.query(User).filter_by(user_id=self.user_id).first()
 
-        if record_exists:
-            record_exists.username = self.username
+        if current_user:
+            current_user.username = self.username
+            current_user.beatmaps_played_alltime = self.beatmaps_played_alltime
         else:
             db.session.add(self)
 
-        return record_exists
+        return current_user
 
     def filter(self, data: List[Dict[str, Any]], agg_by: str, date: str) -> List[Any]:
         return [entry[agg_by] for entry in data if entry[date][:4] == "2023"]
@@ -88,11 +87,9 @@ class Beatmap(db.Model):
     cover_url = db.Column(db.String(255))
     list_url = db.Column(db.String(255))
     last_updated = db.Column(db.DateTime)
-    mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play: Dict[str, Any], mode: str) -> None:
-        map = play["beatmap"]
-        set = play["beatmapset"]
+    def __init__(self, map: Dict[str, Any]) -> None:
+        set = map["beatmapset"]
 
         self.beatmap_id = map["id"]
         self.beatmapset_id = map["beatmapset_id"]
@@ -101,8 +98,8 @@ class Beatmap(db.Model):
         self.version = map["version"]
         self.creator = set["creator"]
         self.creator_id = set["user_id"]
-        self.play_count = map["playcount"]
-        self.status = Status(map["status"])
+        self.play_count = set["play_count"]
+        self.status = set["status"]
         self.difficulty_rating = map["difficulty_rating"]
         self.length = map["hit_length"]
         self.bpm = map["bpm"]
@@ -113,17 +110,17 @@ class Beatmap(db.Model):
         self.cover_url = set["covers"]["cover"]
         self.list_url = set["covers"]["list"]
         self.last_updated = map["last_updated"]
-        self.mode = Mode(map["mode"])
 
-    def add_if_not_exists(self) -> bool:
-        record_exists = (
+    def add_if_not_exists(self) -> None:
+        if self is None:
+            return
+
+        beatmap_exists = (
             db.session.query(Beatmap).filter_by(beatmap_id=self.beatmap_id).first()
         )
 
-        if not record_exists:
+        if not beatmap_exists:
             db.session.add(self)
-
-        return record_exists
 
 
 class Score(db.Model):
@@ -173,15 +170,14 @@ class Score(db.Model):
         self.created_at = play["created_at"]
         self.mode = Mode(mode)
 
-    def add_if_not_exists(self) -> bool:
-        record_exists = (
-            db.session.query(Score).filter_by(score_id=self.score_id).first()
-        )
+    def add_if_not_exists(self) -> None:
+        if self is None:
+            return
 
-        if not record_exists:
+        score_exists = db.session.query(Score).filter_by(score_id=self.score_id).first()
+
+        if not score_exists:
             db.session.add(self)
-
-        return record_exists
 
 
 class BestScore(db.Model):
@@ -199,10 +195,43 @@ class BestScore(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     beatmap_id = db.Column(db.Integer, nullable=False)
     performance_rank = db.Column(db.Integer)
+    accuracy = db.Column(db.Float)
+    pp = db.Column(db.Float)
+    mods = db.Column(db.String(32))
+    letter_grade = db.Column(db.Enum(Grade))
+    artist = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(128), nullable=False)
+    version = db.Column(db.String(128), nullable=False)
+    creator_id = db.Column(db.Integer, nullable=False)
+    cover_url = db.Column(db.String(255))
+    list_url = db.Column(db.String(255))
+    mode = db.Column(db.Enum(Mode))
 
     def __init__(self, idx: int, play: Dict[str, Any], mode: str) -> None:
+        map = play["beatmap"]
+        set = play["beatmapset"]
+
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
+        self.accuracy = play["accuracy"]
+        self.pp = play["pp"]
+        self.mods = ",".join(play["mods"])
+        self.letter_grade = Grade(play["rank"])
+        self.artist = set["artist"]
+        self.title = set["title"]
+        self.version = map["version"]
+        self.creator_id = set["user_id"]
+        self.cover_url = set["covers"]["cover"]
+        self.list_url = set["covers"]["list"]
         self.mode = Mode(mode)
+
+    def add_if_not_exists(self) -> None:
+        if self is None:
+            return
+
+        score_exists = db.session.query(Score).filter_by(score_id=self.score_id).first()
+
+        if not score_exists:
+            db.session.add(self)
