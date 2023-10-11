@@ -23,7 +23,7 @@ class User(db.Model):
     badges_2023 = db.Column(db.Integer, default=0)
     playcount_2023 = db.Column(db.Integer, default=0)
     replays_watched_2023 = db.Column(db.Integer, default=0)
-    scores_loaded = db.Column(db.Boolean, default=False)
+    scores_status = db.Column(db.Boolean, default=False)
     mode = db.Column(db.Enum(Mode), default="osu")
 
     def __init__(self, user: Dict[str, Any], mode: str) -> None:
@@ -41,7 +41,7 @@ class User(db.Model):
         self.badges_2023 = len(badges)
         self.playcount_2023 = sum(playcount)
         self.replays_watched_2023 = sum(replays)
-        self.scores_loaded = False
+        self.scores_status = False
         self.mode = Mode(mode)
 
     def upsert(self) -> bool:

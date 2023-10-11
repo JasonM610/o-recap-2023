@@ -1,4 +1,4 @@
-import os
+import os, json
 from typing import Any, List, Tuple, Union
 from requests import RequestException, Response
 from requests_oauthlib import OAuth2Session
@@ -36,14 +36,44 @@ def fetch_data(url: str) -> Any:
         raise
 
 
-def get_user_data(user: Union[int, str], mode: str) -> User:
-    url = f"users/{user}/{mode}"
+def get_user_data(user: Union[int, str]) -> User:
+    url = f"users/{user}"
     try:
         data = fetch_data(url)
     except RequestException as e:
         return None
 
-    return User(data, mode)
+    return User(data)
+
+
+def get_beatmap_data(beatmap_id: int) -> Beatmap:
+    url = f"beatmaps/{beatmap_id}"
+    try:
+        data = fetch_data(url)
+    except RequestException as e:
+        return None
+
+    obj = json.dumps(data, indent=4)
+    with open("beatmap.json", "w") as outfile:
+        outfile.write(obj)
+
+    return Beatmap(data)
+
+
+def get_beatmap_scores(user_id: int, beatmap_id: int, mode: str) -> List[Score]:
+    url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
+    try:
+        data = fetch_data(url)
+    except RequestException as e:
+        return []
+
+    obj = json.dumps(data, indent=4)
+    with open("score.json", "w") as outfile:
+        outfile.write(obj)
+
+    scores = [Score(play, mode) for play in data]
+
+    return scores
 
 
 def get_best_scores(
@@ -60,18 +90,3 @@ def get_best_scores(
     beatmaps = [Beatmap(play, mode) for play in data]
 
     return best_scores, scores, beatmaps
-
-
-def get_scores(
-    user_id: int, beatmap_id: int, mode: str
-) -> Tuple[List[Score], List[Beatmap]]:
-    url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
-    try:
-        data = fetch_data(url)
-    except RequestException as e:
-        return [], []
-
-    beatmap = Beatmap(data, mode)
-    scores = [Score(play, mode) for play in data]
-
-    return scores, beatmap
