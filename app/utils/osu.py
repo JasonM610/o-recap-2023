@@ -76,9 +76,7 @@ def get_beatmap_scores(user_id: int, beatmap_id: int, mode: str) -> List[Score]:
     return scores
 
 
-def get_best_scores(
-    user_id: int, mode: str
-) -> Tuple[List[BestScore], List[Score], List[Beatmap]]:
+def get_best_scores(user_id: int, mode: str) -> List[BestScore]:
     url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
     try:
         data = fetch_data(url)
@@ -86,7 +84,5 @@ def get_best_scores(
         return [], [], []
 
     best_scores = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
-    scores = [Score(play, mode) for play in data]
-    beatmaps = [Beatmap(play, mode) for play in data]
 
-    return best_scores, scores, beatmaps
+    return best_scores
