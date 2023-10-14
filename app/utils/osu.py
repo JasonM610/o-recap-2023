@@ -60,7 +60,7 @@ def get_beatmap_data(beatmap_id: int) -> Beatmap:
     return Beatmap(data)
 
 
-def get_beatmap_scores(user_id: int, beatmap_id: int, mode: str) -> List[Score]:
+def get_beatmap_scores(user_id: int, beatmap_id: int) -> List[Score]:
     url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
     try:
         data = fetch_data(url)
@@ -71,18 +71,18 @@ def get_beatmap_scores(user_id: int, beatmap_id: int, mode: str) -> List[Score]:
     with open("score.json", "w") as outfile:
         outfile.write(obj)
 
-    scores = [Score(play, mode) for play in data]
+    scores = [Score(play) for play in data]
 
     return scores
 
 
-def get_best_scores(user_id: int, mode: str) -> List[BestScore]:
-    url = f"users/{user_id}/scores/best?mode={mode}&limit=100"
+def get_best_scores(user_id: int) -> List[BestScore]:
+    url = f"users/{user_id}/scores/best?mode=osu&limit=100"
     try:
         data = fetch_data(url)
     except RequestException as e:
         return [], [], []
 
-    best_scores = [BestScore(idx, play, mode) for idx, play in enumerate(data)]
+    best_scores = [BestScore(idx, play) for idx, play in enumerate(data)]
 
     return best_scores

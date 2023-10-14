@@ -31,9 +31,8 @@ def index():
         user_id = user.user_id
         user_in_db = user.insert_or_update()
 
-        # need logic for if existing user submits to a new mode
         if not user_in_db:
-            best_scores = get_best_scores(user_id, mode_input)
+            best_scores = get_best_scores(user_id)
 
             for best_score in best_scores:
                 best_score.add_if_not_exists()

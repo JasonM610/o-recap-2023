@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 from app import db
-from app.utils.enums import Mode, Status, Grade
+from app.utils.enums import Status, Grade
 
 
 class User(db.Model):
@@ -150,9 +150,8 @@ class Score(db.Model):
     count_miss = db.Column(db.Integer)
     passed = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
-    mode = db.Column(db.Enum(Mode), default="osu")
 
-    def __init__(self, play: Dict[str, Any], mode: str) -> None:
+    def __init__(self, play: Dict[str, Any]) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
@@ -168,7 +167,6 @@ class Score(db.Model):
         self.count_miss = play["statistics"]["count_miss"]
         self.passed = play["passed"]
         self.created_at = play["created_at"]
-        self.mode = Mode(mode)
 
     def add_if_not_exists(self) -> None:
         if self is None:
@@ -206,9 +204,8 @@ class BestScore(db.Model):
     cover_url = db.Column(db.String(255))
     list_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime)
-    mode = db.Column(db.Enum(Mode))
 
-    def __init__(self, idx: int, play: Dict[str, Any], mode: str) -> None:
+    def __init__(self, idx: int, play: Dict[str, Any]) -> None:
         map = play["beatmap"]
         set = play["beatmapset"]
 
@@ -227,7 +224,6 @@ class BestScore(db.Model):
         self.cover_url = set["covers"]["cover"]
         self.list_url = set["covers"]["list"]
         self.created_at = play["created_at"]
-        self.mode = Mode(mode)
 
     def add_if_not_exists(self) -> None:
         if self is None:
