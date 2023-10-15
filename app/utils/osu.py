@@ -1,5 +1,5 @@
 import os, json
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Union
 from requests import RequestException, Response
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient

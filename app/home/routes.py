@@ -1,8 +1,8 @@
-import os
 from flask import Blueprint, flash, redirect, render_template, url_for
-from app import db, sqs
+from app import db
 from app.home.forms import UserForm
 from app.utils.osu import get_user_data, get_best_scores
+from app.utils.analytics import insert_data_and_enqueue
 
 
 home = Blueprint(
@@ -33,14 +33,10 @@ def index():
 
         if not user_in_db:
             best_scores = get_best_scores(user_id)
+            insert_data_and_enqueue(user, best_scores)
 
             for best_score in best_scores:
                 best_score.add_if_not_exists()
-
-            message_body = {"UserID": str(user_id), "Mode": str(mode_input)}
-            # sqs.send_message(
-            # QueueUrl=os.environ.get("QUEUE_URL"), MessageBody=message_body
-            # )
 
         db.session.commit()
 
