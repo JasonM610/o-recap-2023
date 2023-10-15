@@ -1,7 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
-from app import db
 from app.home.forms import UserForm
-from app.utils.osu import get_user_data, get_best_scores
+from app.utils.osu import get_user_data
 from app.utils.analytics import insert_data_and_enqueue
 
 
@@ -28,17 +27,7 @@ def index():
             flash("User not found!")
             return render_template("index.html", form=form)
 
-        user_id = user.user_id
-        user_in_db = user.insert_or_update()
-
-        if not user_in_db:
-            best_scores = get_best_scores(user_id)
-            insert_data_and_enqueue(user, best_scores)
-
-            for best_score in best_scores:
-                best_score.add_if_not_exists()
-
-        db.session.commit()
+        insert_data_and_enqueue(user)
 
         # return redirect(url_for("user", user=user))
 
