@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 import boto3
 
 db = SQLAlchemy()
-sqs = boto3.client("sqs", region_name="us-east-2")
 
 
 def create_app() -> Flask:
