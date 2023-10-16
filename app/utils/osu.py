@@ -81,7 +81,7 @@ def get_best_scores(user_id: int) -> List[BestScore]:
     try:
         data = fetch_data(url)
     except RequestException as e:
-        return [], [], []
+        return []
 
     best_scores = [BestScore(idx, play) for idx, play in enumerate(data)]
 

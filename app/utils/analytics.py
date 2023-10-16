@@ -1,14 +1,24 @@
 import boto3, os
+import pandas as pd
 from typing import Any, Dict
 from app.models import User, BestScore
 from app.utils.osu import get_best_scores
 
 sqs = boto3.client("sqs", region_name="us-east-2")
+s3 = boto3.client("s3")
+bucket = s3.Bucket("your-2023-recap")
 dynamo = boto3.resource("dynamodb")
 profile_data = dynamo.Table("ProfileData")
 
 
-def build_initial_data(user: User, best_scores: BestScore) -> Dict[str, Any]:
+def user_exists(user_id: int) -> bool:
+    for obj in bucket.objects.filter(Prefix=f"users/{user_id}/"):
+        return True
+    return False
+
+
+def build_initial_data(user: User) -> Dict[str, Any]:
+    best_scores = get_best_scores(user.user_id)
     best_scores_2023 = [
         {
             "performance_rank": score.performance_rank,
@@ -41,11 +51,10 @@ def build_initial_data(user: User, best_scores: BestScore) -> Dict[str, Any]:
 
 
 def insert_data_and_enqueue(user: User) -> None:
-    # need to add a check to see if user already exists
+    if user_exists(user.user_id):
+        return
 
-    best_scores = get_best_scores(user.user_id)
-    initial_data = build_initial_data(user, best_scores)
-
+    initial_data = build_initial_data(user)
     profile_data.put_item(Item=initial_data)
 
     message_body = {"UserID": str(user.user_id)}
