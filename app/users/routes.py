@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, jsonify, request, render_template
+from app.utils.analytics import get_profile
 
 users = Blueprint(
     "users",
@@ -9,6 +10,7 @@ users = Blueprint(
 )
 
 
-@users.route("/users/<user>/<mode>", methods=["GET"])
-def user():
-    return
+@users.route("/users/<user_id>", methods=["GET"])
+def index(user_id):
+    user_data = get_profile(int(user_id))
+    return jsonify(user_data)

@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from app.home.forms import UserForm
 from app.utils.osu import get_user_data
-from app.utils.analytics import insert_data_and_enqueue
+from app.utils.analytics import insert_user_and_enqueue
 
 
 home = Blueprint(
@@ -27,8 +27,8 @@ def index():
             flash("User not found!")
             return render_template("index.html", form=form)
 
-        insert_data_and_enqueue(user)
+        insert_user_and_enqueue(user)
 
-        # return redirect(url_for("user", user=user))
+        return redirect(url_for("users.index", user_id=user.user_id))
 
     return render_template("index.html", form=form)
