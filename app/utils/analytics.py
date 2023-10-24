@@ -1,17 +1,16 @@
 import boto3, os
-import pandas as pd
 from typing import Any, Dict, List
 from app.models import User, BestScore
 from app.utils.osu import get_best_scores
 
-# sqs = boto3.client("sqs", region_name="us-east-2")
+# sqs = boto3.client("sqs", region_name=os.environ.get("REGION"))
 # s3 = boto3.client("s3")
 # bucket = s3.Bucket("your-2023-recap")
 dynamo = boto3.resource(
     "dynamodb",
-    aws_access_key_id="nope",
-    aws_secret_access_key="nope",
-    region_name="us-east-2",
+    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.environ.get("REGION"),
 )
 table = dynamo.Table("ProfileData")
 
@@ -51,7 +50,7 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 def get_profile(user_id: int) -> Dict[str, Any]:
     response = table.get_item(Key={"user_id": user_id})
 
-    if "Item" in response is None:
+    if "Item" not in response:
         return None
 
     return response["Item"]
