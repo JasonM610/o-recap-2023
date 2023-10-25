@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from app.home.forms import UserForm
-from app.utils.osu import get_user_data
+from app.utils.osu import get_user
 from app.utils.analytics import insert_user_and_enqueue
 
 
@@ -22,7 +22,7 @@ def index():
         user_input = form.user.data
         mode_input = form.mode.data
 
-        user = get_user_data(user_input)
+        user = get_user(user_input)
         if user is None:
             flash("User not found!")
             return render_template("index.html", form=form)

@@ -1,5 +1,5 @@
-import os, json
-from typing import Any, List, Union
+import os
+from typing import Any, Dict, List, Union
 from requests import RequestException, Response
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
@@ -19,70 +19,54 @@ token = session.fetch_token(
 )
 
 
-def make_request(url: str) -> Response:
+def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> Any:
     try:
-        response = session.request("GET", f"{base_url}{url}")
-        return response
-    except RequestException as e:
-        raise
-
-
-def fetch_data(url: str) -> Any:
-    try:
-        response = make_request(url)
-        response.raise_for_status()
+        response = session.request(method, f"{base_url}{url}", json=body_params)
         return response.json()
     except RequestException as e:
         raise
 
 
-def get_user_data(user: Union[int, str]) -> User:
+def get_user(user: Union[int, str]) -> User:
     url = f"users/{user}"
     try:
-        data = fetch_data(url)
+        data = make_request("GET", url)
+        return User(data)
     except RequestException as e:
         return None
 
-    return User(data)
 
-
-def get_beatmap_data(beatmap_id: int) -> Beatmap:
+def get_beatmap(beatmap_id: int) -> Beatmap:
     url = f"beatmaps/{beatmap_id}"
     try:
-        data = fetch_data(url)
+        data = make_request("GET", url)
+        return Beatmap(data)
     except RequestException as e:
         return None
-
-    obj = json.dumps(data, indent=4)
-    with open("beatmap.json", "w") as outfile:
-        outfile.write(obj)
-
-    return Beatmap(data)
 
 
 def get_beatmap_scores(user_id: int, beatmap_id: int) -> List[Score]:
     url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
     try:
-        data = fetch_data(url)
+        data = make_request("GET", url)
+        return [Score(play) for play in data]
     except RequestException as e:
         return []
 
-    obj = json.dumps(data, indent=4)
-    with open("score.json", "w") as outfile:
-        outfile.write(obj)
 
-    scores = [Score(play) for play in data]
-
-    return scores
+def get_beatmap_stats(beatmap_id: int, body_params: Dict[str, Any]) -> Beatmap:
+    url = f"beatmaps/{beatmap_id}/attributes"
+    try:
+        data = make_request("POST", url, body_params)
+        return data
+    except RequestException as e:
+        return None
 
 
 def get_best_scores(user_id: int) -> List[BestScore]:
     url = f"users/{user_id}/scores/best?mode=osu&limit=100"
     try:
-        data = fetch_data(url)
+        data = make_request("GET", url)
+        return [BestScore(idx, play) for idx, play in enumerate(data)]
     except RequestException as e:
         return []
-
-    best_scores = [BestScore(idx, play) for idx, play in enumerate(data)]
-
-    return best_scores
