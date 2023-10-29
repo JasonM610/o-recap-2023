@@ -1,9 +1,8 @@
+import datetime
 from typing import Any, Dict, List
-from app import db
-from app.utils.enums import Status, Grade
 
 
-class User(db.Model):
+class User:
     """
     Contains data related to an osu! user.
     https://osu.ppy.sh/docs/index.html#user
@@ -12,18 +11,15 @@ class User(db.Model):
         GET ".../users/{user}"
     """
 
-    __tablename__ = "Users"
-
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), nullable=False)
-    country_code = db.Column(db.String(2))
-    avatar_url = db.Column(db.String(255))
-    beatmaps_played_alltime = db.Column(db.Integer, default=0)
-    achievements_2023 = db.Column(db.Integer, default=0)
-    badges_2023 = db.Column(db.Integer, default=0)
-    playcount_2023 = db.Column(db.Integer, default=0)
-    replays_watched_2023 = db.Column(db.Integer, default=0)
-    scores_status = db.Column(db.Boolean, default=False)
+    user_id = int
+    username = str
+    country_code = str
+    avatar_url = str
+    beatmaps_played = int
+    achievements_2023 = int
+    badges_2023 = int
+    playcount_2023 = int
+    replays_watched_2023 = int
 
     def __init__(self, user: Dict[str, Any]) -> None:
         achieves = self.filter(user["user_achievements"], "achieved_at", "achieved_at")
@@ -35,95 +31,30 @@ class User(db.Model):
         self.username = user["username"]
         self.country_code = user["country_code"]
         self.avatar_url = user["avatar_url"]
-        self.beatmaps_played_alltime = user["beatmap_playcounts_count"]
+        self.beatmaps_played = user["beatmap_playcounts_count"]
         self.achievements_2023 = len(achieves)
         self.badges_2023 = len(badges)
         self.playcount_2023 = sum(playcount)
         self.replays_watched_2023 = sum(replays)
-        self.scores_status = False
-
-    def insert_or_update(self) -> bool:
-        current_user = db.session.query(User).filter_by(user_id=self.user_id).first()
-
-        if current_user:
-            current_user.username = self.username
-            current_user.beatmaps_played_alltime = self.beatmaps_played_alltime
-        else:
-            db.session.add(self)
-
-        return current_user
 
     def filter(self, data: List[Dict[str, Any]], agg_by: str, date: str) -> List[Any]:
         return [entry[agg_by] for entry in data if entry[date][:4] == "2023"]
 
-
-class Beatmap(db.Model):
-    """
-    Contains data related to an osu! beatmap, including details on the beatmap set.
-    https://osu.ppy.sh/docs/index.html#beatmap
-
-    Beatmap data is returned when score data is requested:
-        - GET ".../users/{user}/scores/{type}"
-    """
-
-    __tablename__ = "Beatmaps"
-
-    beatmap_id = db.Column(db.Integer, primary_key=True)
-    beatmapset_id = db.Column(db.Integer, nullable=False)
-    artist = db.Column(db.String(128), nullable=False)
-    title = db.Column(db.String(128), nullable=False)
-    version = db.Column(db.String(128), nullable=False)
-    creator = db.Column(db.String(32), nullable=False)
-    creator_id = db.Column(db.Integer, nullable=False)
-    play_count = db.Column(db.Integer)
-    status = db.Column(db.Enum(Status))
-    difficulty_rating = db.Column(db.Float)
-    length = db.Column(db.Integer)
-    bpm = db.Column(db.Float)
-    approach_rate = db.Column(db.Float)
-    circle_size = db.Column(db.Float)
-    overall_difficulty = db.Column(db.Float)
-    hp_drain = db.Column(db.Float)
-    cover_url = db.Column(db.String(255))
-    list_url = db.Column(db.String(255))
-    last_updated = db.Column(db.DateTime)
-
-    def __init__(self, map: Dict[str, Any]) -> None:
-        set = map["beatmapset"]
-
-        self.beatmap_id = map["id"]
-        self.beatmapset_id = map["beatmapset_id"]
-        self.artist = set["artist"]
-        self.title = set["title"]
-        self.version = map["version"]
-        self.creator = set["creator"]
-        self.creator_id = set["user_id"]
-        self.play_count = set["play_count"]
-        self.status = set["status"]
-        self.difficulty_rating = map["difficulty_rating"]
-        self.length = map["hit_length"]
-        self.bpm = map["bpm"]
-        self.approach_rate = map["ar"]
-        self.circle_size = map["cs"]
-        self.overall_difficulty = map["accuracy"]
-        self.hp_drain = map["drain"]
-        self.cover_url = set["covers"]["cover"]
-        self.list_url = set["covers"]["list"]
-        self.last_updated = map["last_updated"]
-
-    def add_if_not_exists(self) -> None:
-        if self is None:
-            return
-
-        beatmap_exists = (
-            db.session.query(Beatmap).filter_by(beatmap_id=self.beatmap_id).first()
-        )
-
-        if not beatmap_exists:
-            db.session.add(self)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "user_id": self.user_id,
+            "username": self.username,
+            "country_code": self.country_code,
+            "avatar_url": self.avatar_url,
+            "beatmaps_played": self.beatmaps_played,
+            "achievements_2023": self.achievements_2023,
+            "badges_2023": self.badges_2023,
+            "playcount_2023": self.playcount_2023,
+            "replays_watched_2023": self.replays_watched_2023,
+        }
 
 
-class Score(db.Model):
+class Score:
     """
     Contains data related to an osu! score.
     https://osu.ppy.sh/docs/index.html#score
@@ -133,52 +64,63 @@ class Score(db.Model):
         - GET ".../beatmaps/{beatmap}/scores/users/{user}/all"
     """
 
-    __tablename__ = "Scores"
+    score_id = int
+    user_id = int
+    beatmap_id = int
+    accuracy = float
+    pp = float
+    mods = List[str]
+    score = int
+    letter_grade = str
+    max_combo = int
+    count_300 = int
+    count_100 = int
+    count_50 = int
+    count_miss = int
+    passed = bool
+    beatmap_stats = Dict[str, Any]
+    created_at = datetime
 
-    score_id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    beatmap_id = db.Column(db.Integer, nullable=False)
-    accuracy = db.Column(db.Float)
-    pp = db.Column(db.Float)
-    mods = db.Column(db.String(32))
-    score = db.Column(db.Integer)
-    letter_grade = db.Column(db.Enum(Grade))
-    max_combo = db.Column(db.Integer)
-    count_300 = db.Column(db.Integer)
-    count_100 = db.Column(db.Integer)
-    count_50 = db.Column(db.Integer)
-    count_miss = db.Column(db.Integer)
-    passed = db.Column(db.Boolean)
-    created_at = db.Column(db.DateTime)
-
-    def __init__(self, play: Dict[str, Any]) -> None:
+    def __init__(self, play: Dict[str, Any], beatmap_stats: Dict[str, Any]) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.accuracy = round(play["accuracy"], 4)
-        self.mods = ",".join(play["mods"])
+        self.mods = play["mods"]
         self.pp = play["pp"]
         self.score = play["score"]
-        self.letter_grade = Grade(play["rank"])
+        self.letter_grade = play["rank"]
         self.max_combo = play["max_combo"]
         self.count_300 = play["statistics"]["count_300"]
         self.count_100 = play["statistics"]["count_100"]
         self.count_50 = play["statistics"]["count_50"]
         self.count_miss = play["statistics"]["count_miss"]
         self.passed = play["passed"]
+        self.beatmap_stats = beatmap_stats
         self.created_at = play["created_at"]
 
-    def add_if_not_exists(self) -> None:
-        if self is None:
-            return
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "score_id": self.score_id,
+            "user_id": self.user_id,
+            "beatmap_id": self.beatmap_id,
+            "accuracy": self.accuracy,
+            "mods": self.mods,
+            "pp": self.pp,
+            "score": self.score,
+            "letter_grade": self.letter_grade,
+            "max_combo": self.max_combo,
+            "count_300": self.count_300,
+            "count_100": self.count_100,
+            "count_50": self.count_50,
+            "count_miss": self.count_miss,
+            "passed": self.passed,
+            "beatmap_stats": self.beatmap_stats,
+            "created_at": self.created_at,
+        }
 
-        score_exists = db.session.query(Score).filter_by(score_id=self.score_id).first()
 
-        if not score_exists:
-            db.session.add(self)
-
-
-class BestScore(db.Model):
+class BestScore:
     """
     Contains data related to a user's best scores (also known as "top plays").
     The data stored here does not directly correspond to an object in the API.
@@ -187,23 +129,21 @@ class BestScore(db.Model):
         - GET ".../users/{user}/scores/{type}"
     """
 
-    __tablename__ = "BestScores"
-
-    score_id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    beatmap_id = db.Column(db.Integer, nullable=False)
-    performance_rank = db.Column(db.Integer)
-    accuracy = db.Column(db.Float)
-    pp = db.Column(db.Float)
-    mods = db.Column(db.String(32))
-    letter_grade = db.Column(db.Enum(Grade))
-    artist = db.Column(db.String(128), nullable=False)
-    title = db.Column(db.String(128), nullable=False)
-    version = db.Column(db.String(128), nullable=False)
-    creator_id = db.Column(db.Integer, nullable=False)
-    cover_url = db.Column(db.String(255))
-    list_url = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime)
+    score_id = int
+    user_id = int
+    beatmap_id = int
+    performance_rank = int
+    accuracy = float
+    pp = float
+    mods = List[str]
+    letter_grade = str
+    artist = str
+    title = str
+    version = str
+    creator_id = int
+    cover_url = str
+    list_url = str
+    created_at = datetime
 
     def __init__(self, idx: int, play: Dict[str, Any]) -> None:
         map = play["beatmap"]
@@ -215,8 +155,8 @@ class BestScore(db.Model):
         self.performance_rank = idx + 1
         self.accuracy = round(play["accuracy"], 4)
         self.pp = play["pp"]
-        self.mods = ",".join(play["mods"])
-        self.letter_grade = Grade(play["rank"])
+        self.mods = play["mods"]
+        self.letter_grade = play["rank"]
         self.artist = set["artist"]
         self.title = set["title"]
         self.version = map["version"]
@@ -225,13 +165,21 @@ class BestScore(db.Model):
         self.list_url = set["covers"]["list"]
         self.created_at = play["created_at"]
 
-    def add_if_not_exists(self) -> None:
-        if self is None:
-            return
-
-        score_exists = (
-            db.session.query(BestScore).filter_by(score_id=self.score_id).first()
-        )
-
-        if not score_exists:
-            db.session.add(self)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "score_id": self.score_id,
+            "user_id": self.user_id,
+            "beatmap_id": self.beatmap_id,
+            "performance_rank": self.performance_rank,
+            "accuracy": self.accuracy,
+            "pp": self.pp,
+            "mods": self.mods,
+            "letter_grade": self.letter_grade,
+            "artist": self.artist,
+            "title": self.title,
+            "version": self.version,
+            "creator_id": self.creator_id,
+            "cover_url": self.cover_url,
+            "list_url": self.list_url,
+            "created_at": self.created_at,
+        }
