@@ -7,41 +7,17 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from app.utils.osu import get_beatmap_scores
 
 
-def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
-    """Collects all of a user's scores to support analytics.
-    Users with less than 25,000 beatmaps played will have this data collected from their profile.
-    For users with at least 25,000 beatmaps played, using the list of currently ranked/loved maps is faster.
-
-    Args:
-        user_id (int): A user's ID
-        beatmaps_played (int): The amount of beatmaps the user has played
-
-    Returns:
-        pl.DataFrame: A DataFrame containing every submitted score from a user
-    """
-    beatmap_ids = (
-        fetch_beatmaps_from_profile(user_id)
-        if beatmaps_played >= 25000
-        else fetch_all_beatmaps()
+def collect_beatmap_ids(user_id: int, beatmaps_played: int) -> List[int]:
+    return (
+        collect_ids_from_profile(user_id)
+        if beatmaps_played <= 25000
+        else collect_all_ids()
     )
 
-    scores = []
-    for beatmap_id in beatmap_ids:
-        beatmap_scores = get_beatmap_scores(user_id, beatmap_id)
-        if beatmap_scores:
-            scores.extend(beatmap_scores)
 
-        # temporary to handle API rate limit
-        time.sleep(0.1)
-
-    scores_df = pl.DataFrame(scores)
-    return scores_df
-
-
-def fetch_beatmaps_from_profile(user_id: int) -> List[int]:
+def collect_ids_from_profile(user_id: int) -> List[int]:
     """
     Scrapes "Most Played" section on the userpage to build a list of all beatmaps a user has played
     Note that some maps (< 1%) go missing, and more go missing for users that have played a lot of maps
@@ -95,7 +71,7 @@ def fetch_beatmaps_from_profile(user_id: int) -> List[int]:
     return beatmap_ids
 
 
-def fetch_all_beatmaps() -> List[int]:
+def collect_all_ids() -> List[int]:
     """
     Builds list of ranked and loved beatmaps. Sourced from https://osu.respektive.pw/beatmaps.
     This is called for users that have played a lot of beatmaps (25,000+)
