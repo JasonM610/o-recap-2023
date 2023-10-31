@@ -1,9 +1,9 @@
 import os
 from typing import Any, Dict, List, Union
-from requests import RequestException, Response
+from requests import RequestException
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
-from app.models import Beatmap, Score, User, BestScore
+from app.models import Score, User, BestScore
 
 
 client_id = os.environ.get("CLIENT_ID")
@@ -36,29 +36,33 @@ def get_user(user: Union[int, str]) -> User:
         return None
 
 
-def get_beatmap(beatmap_id: int) -> Beatmap:
-    url = f"beatmaps/{beatmap_id}"
-    try:
-        data = make_request("GET", url)
-        return Beatmap(data)
-    except RequestException as e:
-        return None
-
-
 def get_beatmap_scores(user_id: int, beatmap_id: int) -> List[Score]:
     url = f"beatmaps/{beatmap_id}/scores/users/{user_id}/all"
     try:
         data = make_request("GET", url)
-        return [Score(play) for play in data]
+        return [
+            Score(score, beatmap_id)
+            for score in data.get("scores", [])
+            if score["created_at"][:4] == "2023"
+        ]
     except RequestException as e:
         return []
 
 
-def get_beatmap_stats(beatmap_id: int, body_params: Dict[str, Any]) -> Beatmap:
+def get_beatmap(beatmap_id: int) -> Dict[str, Any]:
+    url = f"beatmaps/{beatmap_id}"
+    try:
+        data = make_request("GET", url)
+        return data
+    except RequestException as e:
+        return None
+
+
+def get_beatmap_attribs(beatmap_id: int, body_params: Dict[str, Any]) -> Dict[str, Any]:
     url = f"beatmaps/{beatmap_id}/attributes"
     try:
         data = make_request("POST", url, body_params)
-        return data
+        return data.get("attributes")
     except RequestException as e:
         return None
 
