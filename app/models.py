@@ -77,14 +77,12 @@ class Score:
     count_100 = int
     count_50 = int
     count_miss = int
-    passed = bool
-    beatmap_stats = Dict[str, Any]
     created_at = datetime
 
-    def __init__(self, play: Dict[str, Any], beatmap_stats: Dict[str, Any]) -> None:
+    def __init__(self, play: Dict[str, Any], beatmap_id: int) -> None:
         self.score_id = play["id"]
         self.user_id = play["user_id"]
-        self.beatmap_id = play["beatmap"]["id"]
+        self.beatmap_id = beatmap_id
         self.accuracy = round(play["accuracy"], 4)
         self.mods = play["mods"]
         self.pp = play["pp"]
@@ -95,8 +93,6 @@ class Score:
         self.count_100 = play["statistics"]["count_100"]
         self.count_50 = play["statistics"]["count_50"]
         self.count_miss = play["statistics"]["count_miss"]
-        self.passed = play["passed"]
-        self.beatmap_stats = beatmap_stats
         self.created_at = play["created_at"]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,9 +100,9 @@ class Score:
             "score_id": self.score_id,
             "user_id": self.user_id,
             "beatmap_id": self.beatmap_id,
-            "accuracy": self.accuracy,
             "mods": self.mods,
-            "pp": self.pp,
+            "accuracy": str(self.accuracy),
+            "pp": str(self.pp),
             "score": self.score,
             "letter_grade": self.letter_grade,
             "max_combo": self.max_combo,
@@ -115,7 +111,6 @@ class Score:
             "count_50": self.count_50,
             "count_miss": self.count_miss,
             "passed": self.passed,
-            "beatmap_stats": self.beatmap_stats,
             "created_at": self.created_at,
         }
 
@@ -133,9 +128,9 @@ class BestScore:
     user_id = int
     beatmap_id = int
     performance_rank = int
+    mods = List[str]
     accuracy = float
     pp = float
-    mods = List[str]
     letter_grade = str
     artist = str
     title = str
@@ -153,9 +148,9 @@ class BestScore:
         self.user_id = play["user_id"]
         self.beatmap_id = play["beatmap"]["id"]
         self.performance_rank = idx + 1
+        self.mods = play["mods"]
         self.accuracy = round(play["accuracy"], 4)
         self.pp = play["pp"]
-        self.mods = play["mods"]
         self.letter_grade = play["rank"]
         self.artist = set["artist"]
         self.title = set["title"]
@@ -171,9 +166,9 @@ class BestScore:
             "user_id": self.user_id,
             "beatmap_id": self.beatmap_id,
             "performance_rank": self.performance_rank,
-            "accuracy": self.accuracy,
-            "pp": self.pp,
             "mods": self.mods,
+            "accuracy": str(self.accuracy),
+            "pp": str(self.pp),
             "letter_grade": self.letter_grade,
             "artist": self.artist,
             "title": self.title,
