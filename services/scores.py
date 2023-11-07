@@ -1,7 +1,6 @@
 import boto3, os, time
 import polars as pl
-from typing import Dict, Any, List
-from app.models import Score
+from typing import Dict, Any
 from app.utils.osu import get_beatmap, get_beatmap_attribs, get_beatmap_scores
 from services.beatmaps import collect_beatmap_ids
 
