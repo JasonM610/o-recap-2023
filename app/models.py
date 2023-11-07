@@ -110,7 +110,6 @@ class Score:
             "count_100": self.count_100,
             "count_50": self.count_50,
             "count_miss": self.count_miss,
-            "passed": self.passed,
             "created_at": self.created_at,
         }
 
