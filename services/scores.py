@@ -67,7 +67,7 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
             continue
 
         for score in get_beatmap_scores(user_id, beatmap_id):
-            score.append(process_score())
+            scores.append(process_score())
 
         end = time.time()
         if (end - start) < 0.1:
