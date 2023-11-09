@@ -25,23 +25,6 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
     """
 
     def process_score() -> Dict[str, Any]:
-        mods = set(score.mods)
-        if mods & {"EZ", "HR", "HT", "DT", "NC", "FL"}:
-            rate = 1.5 if "DT" in mods or "NC" in mods else 0.75 if "HT" in mods else 1
-            cs_scale = 1.3 if "HR" in mods else 0.5 if "EZ" in mods else 1
-
-            beatmap_attribs = get_beatmap_attribs(beatmap_id, {"mods": score.mods})
-            beatmap_data.update(
-                {
-                    "difficulty_rating": round(beatmap_attribs["star_rating"], 2),
-                    "hit_length": int(beatmap_data["hit_length"] * (1 / rate)),
-                    "bpm": int(beatmap_data["bpm"] * rate),
-                    "ar": round(beatmap_attribs["approach_rate"], 2),
-                    "accuracy": round(beatmap_attribs["overall_difficulty"], 2),
-                    "cs": min(10, beatmap_data["cs"] * cs_scale),
-                }
-            )
-
         score_dict = {
             **score.to_dict(),
             "mods": ",".join(score.mods),
@@ -52,8 +35,27 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
             "ar": beatmap_data["ar"],
             "od": beatmap_data["accuracy"],
             "cs": beatmap_data["cs"],
+            "ranked": beatmap_data["ranked"],
             "set_owner": beatmap_data["user_id"],
         }
+
+        mods = set(score.mods) - set(["HD", "NF", "SD", "PF", "SO"])
+        if mods & {"EZ", "HR", "HT", "DT", "NC", "FL"}:
+            rate = 1.5 if "DT" in mods or "NC" in mods else 0.75 if "HT" in mods else 1
+            cs_scale = 1.3 if "HR" in mods else 0.5 if "EZ" in mods else 1
+
+            # eventually store modded attributes inside table -> reduce api calls
+            beatmap_attribs = get_beatmap_attribs(beatmap_id, {"mods": score.mods})
+            score_dict.update(
+                {
+                    "star_rating": round(beatmap_attribs["star_rating"], 2),
+                    "length": int(beatmap_data["hit_length"] * (1 / rate)),
+                    "bpm": int(beatmap_data["bpm"] * rate),
+                    "ar": round(beatmap_attribs["approach_rate"], 2),
+                    "od": round(beatmap_attribs["overall_difficulty"], 2),
+                    "cs": min(10, round(beatmap_data["cs"] * cs_scale), 2),
+                }
+            )
 
         return score_dict
 
