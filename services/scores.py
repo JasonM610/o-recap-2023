@@ -28,7 +28,6 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
         score_dict = {
             **score.to_dict(),
             "mods": ",".join(score.mods),
-            "pp": score.pp if score.pp is not None else 0,
             "star_rating": beatmap_data["difficulty_rating"],
             "length": beatmap_data["hit_length"],
             "bpm": beatmap_data["bpm"],
@@ -66,8 +65,8 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
         beatmap_data = get_beatmap(beatmap_id)
 
         if (
-            beatmap_data in ["graveyard", "wip", "pending"]
-            or beatmap_data["mode"] != "osu"
+            beatmap_data.get("status") in ["graveyard", "wip", "pending"]
+            or beatmap_data.get("mode") != "osu"
         ):
             continue
 

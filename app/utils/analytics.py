@@ -2,7 +2,7 @@ import boto3, os
 import polars as pl
 from typing import Any, Dict, List
 from app.models import User, BestScore
-from app.utils.osu import get_user, get_best_scores
+from app.utils.osu import get_user, get_beatmap, get_best_scores
 
 # sqs = boto3.client("sqs", region_name=os.environ.get("REGION"))
 # s3 = boto3.client("s3")
@@ -50,7 +50,11 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 
 def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
     def get_2023_pp() -> str:
-        best_scores = scores.group_by("beatmap_id").agg(pl.col("pp").max())
+        best_scores = (
+            scores.filter(pl.col("ranked" == 1))
+            .group_by("beatmap_id")
+            .agg(pl.col("pp").max())
+        )
         score_ranking = best_scores["pp"].rank(method="ordinal", descending=True)
 
         return str(round((best_scores["pp"] * (0.95 ** (score_ranking - 1))).sum(), 3))
@@ -64,11 +68,18 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             return {}
 
         best_pass = passes[passes["star_rating"].arg_max()]
+        beatmap_id = best_pass["beatmap_id"][0]
+        beatmap_data = get_beatmap(beatmap_id)
 
         return {
             "beatmap_id": best_pass["beatmap_id"][0],
+            "artist": beatmap_data["beatmapset"]["artist"],
+            "title": beatmap_data["beatmapset"]["title"],
+            "version": beatmap_data["version"],
             "mods": best_pass["mods"][0],
+            "accuracy": str(best_pass["accuracy"][0]),
             "star_rating": str(round(best_pass["star_rating"][0], 2)),
+            "card_url": beatmap_data["beatmapset"]["covers"]["list"],
         }
 
     def get_averages() -> Dict[str, Any]:
@@ -76,6 +87,7 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "ar": str(round(scores["ar"].mean(), 2)),
             "cs": str(round(scores["cs"].mean(), 1)),
             "bpm": str(int(scores["bpm"].mean())),
+            "acc": str(round(scores["accuracy"].mean(), 4)),
             "len": str(int(scores["length"].mean())),
             "sr": str(round(scores["star_rating"].mean(), 2)),
         }
@@ -96,6 +108,7 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
 
         return {
             "scores": scores.select(pl.count()).item(),
+            "ranked_score": scores["score"].sum(),
             "letter_grades": grade_counts,
             "most_played_mappers": map_counts.to_dict(as_series=False),
             "most_played_mods": mod_counts.to_dict(as_series=False),
@@ -111,6 +124,7 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "agg": get_aggregates(),
         }
     )
+    print(analytics)
 
     table.update_item(
         Key={"user_id": user_id},

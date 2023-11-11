@@ -64,7 +64,7 @@ def collect_ids_from_profile(user_id: int) -> List[int]:
 
     get_beatmap_urls = "return Array.from(document.querySelectorAll('.beatmap-playcount__cover')).map(element => element.getAttribute('href'));"
     beatmap_urls = driver.execute_script(get_beatmap_urls)
-    beatmap_ids = [url.split("/")[-1] for url in beatmap_urls]
+    beatmap_ids = [int(url.split("/")[-1]) for url in beatmap_urls]
 
     driver.quit()
 

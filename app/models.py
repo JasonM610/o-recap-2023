@@ -85,7 +85,7 @@ class Score:
         self.beatmap_id = beatmap_id
         self.accuracy = round(play["accuracy"], 4)
         self.mods = play["mods"] if len(play["mods"]) != 0 else ["NM"]
-        self.pp = play["pp"]
+        self.pp = play["pp"] if play["pp"] is not None else 0
         self.score = play["score"]
         self.letter_grade = play["rank"]
         self.max_combo = play["max_combo"]
@@ -101,8 +101,8 @@ class Score:
             "user_id": self.user_id,
             "beatmap_id": self.beatmap_id,
             "mods": self.mods,
-            "accuracy": str(self.accuracy),
-            "pp": str(self.pp),
+            "accuracy": self.accuracy,
+            "pp": self.pp,
             "score": self.score,
             "letter_grade": self.letter_grade,
             "max_combo": self.max_combo,
