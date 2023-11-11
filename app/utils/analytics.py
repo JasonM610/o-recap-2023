@@ -49,11 +49,11 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 
 
 def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
-    def get_2023_pp() -> float:
+    def get_2023_pp() -> str:
         best_scores = scores.group_by("beatmap_id").agg(pl.col("pp").max())
         score_ranking = best_scores["pp"].rank(method="ordinal", descending=True)
 
-        return round((best_scores["pp"] * (0.95 ** (score_ranking - 1))).sum(), 3)
+        return str(round((best_scores["pp"] * (0.95 ** (score_ranking - 1))).sum(), 3))
 
     def get_highest_sr_pass() -> Dict[str, Any]:
         passes = scores.filter(~pl.col("mods").str.contains("NF")).filter(
@@ -68,16 +68,16 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
         return {
             "beatmap_id": best_pass["beatmap_id"][0],
             "mods": best_pass["mods"][0],
-            "star_rating": round(best_pass["star_rating"][0], 2),
+            "star_rating": str(round(best_pass["star_rating"][0], 2)),
         }
 
     def get_averages() -> Dict[str, Any]:
         return {
-            "average_ar": round(scores["ar"].mean(), 2),
-            "average_cs": round(scores["cs"].mean(), 1),
-            "average_bpm": int(scores["bpm"].mean()),
-            "average_len": int(scores["length"].mean()),
-            "average_sr": round(scores["star_rating"].mean(), 2),
+            "ar": str(round(scores["ar"].mean(), 2)),
+            "cs": str(round(scores["cs"].mean(), 1)),
+            "bpm": str(int(scores["bpm"].mean())),
+            "len": str(int(scores["length"].mean())),
+            "sr": str(round(scores["star_rating"].mean(), 2)),
         }
 
     def get_aggregates() -> Dict[str, Any]:
@@ -86,16 +86,10 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             for grade in ["XH", "SH", "X", "S", "A", "B", "C", "D"]
         ]
 
-        map_counts = (
-            scores["set_owner"]
-            .value_counts(sort=True)
-            .head(3)
-            .replace(
-                "set_owner",
-                map_counts["set_owner"]
-                .apply(get_user)
-                .apply(lambda user: user.username),
-            )
+        map_counts = scores["set_owner"].value_counts(sort=True).head(3)
+        map_counts = map_counts.replace(
+            "set_owner",
+            map_counts["set_owner"].apply(get_user).apply(lambda user: user.username),
         )
 
         mod_counts = scores["mods"].value_counts(sort=True).head(3)
@@ -107,16 +101,19 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "most_played_mods": mod_counts.to_dict(as_series=False),
         }
 
-    analytics = {
-        "year_pp": get_2023_pp(),
-        "highest_sr_pass": get_highest_sr_pass(),
-        "avgs": get_averages(),
-        "aggs": get_aggregates(),
-    }
+    analytics = (
+        {}
+        if scores.is_empty()
+        else {
+            "year_pp": get_2023_pp(),
+            "highest_sr_pass": get_highest_sr_pass(),
+            "avg": get_averages(),
+            "agg": get_aggregates(),
+        }
+    )
 
-    # needs testing:
-    # table.update_item(
-    # Key={"user_id": user_id},
-    # UpdateExpression="SET analytics = :r",
-    # ExpressionAttributeValues={":r": analytics},
-    # )
+    table.update_item(
+        Key={"user_id": user_id},
+        UpdateExpression="SET analytics = :r",
+        ExpressionAttributeValues={":r": analytics},
+    )

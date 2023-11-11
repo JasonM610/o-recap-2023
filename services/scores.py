@@ -53,7 +53,7 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
                     "bpm": int(beatmap_data["bpm"] * rate),
                     "ar": round(beatmap_attribs["approach_rate"], 2),
                     "od": round(beatmap_attribs["overall_difficulty"], 2),
-                    "cs": min(10, round(beatmap_data["cs"] * cs_scale), 2),
+                    "cs": min(10, round(beatmap_data["cs"] * cs_scale, 2)),
                 }
             )
 
@@ -65,7 +65,10 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
         start = time.time()
         beatmap_data = get_beatmap(beatmap_id)
 
-        if beatmap_data in ["graveyard", "wip", "pending"]:
+        if (
+            beatmap_data in ["graveyard", "wip", "pending"]
+            or beatmap_data["mode"] != "osu"
+        ):
             continue
 
         for score in get_beatmap_scores(user_id, beatmap_id):
