@@ -84,7 +84,7 @@ class Score:
         self.user_id = play["user_id"]
         self.beatmap_id = beatmap_id
         self.accuracy = round(play["accuracy"], 4)
-        self.mods = play["mods"]
+        self.mods = play["mods"] if len(play["mods"]) > 1 else ["NM"]
         self.pp = play["pp"]
         self.score = play["score"]
         self.letter_grade = play["rank"]
