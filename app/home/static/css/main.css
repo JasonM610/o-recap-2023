@@ -1,67 +1,63 @@
 body {
-    background-color: rgb(50, 50, 50);
-    color: rgb(255, 255, 255);
-    margin-top: 600px;
+    font-family: Helvetica, Arial, sans-serif;
+    background: rgb(30, 30, 30);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+}
+
+nav {
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(20,20,20,1) 5%);
+    font-family: Helvetica, Arial, sans-serif;
+    padding: 14px;
+    text-align: center;
+    position: fixed; 
+    width: 100%; 
+    top: 0; 
+}
+
+nav a {
+    color: rgb(150, 150, 150);
+    text-decoration: none;
+    font-size: 20px;
+    padding: 16px;
+    margin: 0 5px;
+}
+
+form {
+    margin-top: 450px;
 }
 
 .form-container {
-    max-width: 70%;
+    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-.form-input {
-    padding: 8px;
-    display: flex;
-    width: 500px;
-    height: 35px;
-    margin-bottom: 10px;   
-    flex-direction: row;
-}
 .form-user {
-    border-right: 0;
-    border-left: 2;
-    font-family: sans-serif;
-    width: 83%;
+    width: 440px;
+    font-size: 20px;
+    border-radius: 16px;
     padding: 8px;
-    border: 1px solid rgb(120, 120, 120);
-    color: rgb(80, 80, 80);
-}
-
-.form-user:focus {
-    outline: none;
-}
-
-.form-mode {
-    appearance: none;
-    padding: 1px;
-    font-family: sans-serif;
-    border-radius: 0;
-    background-color: rgb(120, 120, 120);
     color: rgb(255, 255, 255);
-    text-align: center;
-    flex: 1;
-}
-
-.form-mode:focus {
+    border: 2px solid rgb(253, 170, 211);
+    background-color: rgb(30, 30, 30);
     outline: none;
+    box-sizing: border-box; 
 }
 
-.form-submit {
-    display: flex;
-    justify-content: center;
-}
-
-.form-submit input[type="submit"] {
-    background-color: rgb(120, 120, 120);
-    color: rgb(255, 255, 255);
+.submit-image {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background: none;
     border: none;
-    font-family: sans-serif;
-    padding: 8px 16px;
     cursor: pointer;
 }

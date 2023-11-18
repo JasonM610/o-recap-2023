@@ -20,7 +20,6 @@ def index():
 
     if form.validate_on_submit():
         user_input = form.user.data
-        mode_input = form.mode.data
 
         user = get_user(user_input)
         if user is None:

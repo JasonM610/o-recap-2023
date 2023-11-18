@@ -6,19 +6,17 @@
 </head>
 <body>
     <nav>
-        <!-- add navigation bar -->
+        <a href="#">Home</a>
+        <a href="#">Leaderboard</a>
+        <a href="#">About</a>
     </nav>
-    <div class="form-container">
-        <form method="POST"> 
+    <form method="POST"> 
+        <div class="form-container">
             {{ form.hidden_tag() }}
-            <div class="form-input">
-                {{ form.user(placeholder="Username/ID", class_="form-user") }}
-                {{ form.mode(class_="form-mode") }}
-            </div>
-            <div class="form-submit">
-                {{ form.submit() }}
-            </div>
-        </form>
-    </div>
+            <div>
+                {{ form.user(placeholder="Search (Username/ID)", class_="form-user") }}
+                <input type="image" src="{{url_for('.static', filename='img/search.png')}}" alt="Submit" class="submit-image">
+        </div>
+    </form>
 </body>
 </html>
