@@ -23,11 +23,12 @@ def index():
 
         user = get_user(user_input)
         if user is None:
-            flash("User not found!")
+            flash("User not found")
+            form.user.data = ""
             return render_template("index.html", form=form)
 
         insert_user_and_enqueue(user)
 
-        return redirect(url_for("users.index", user_id=user.user_id))
+        return redirect(url_for("users.user", user_id=user.user_id))
 
     return render_template("index.html", form=form)
