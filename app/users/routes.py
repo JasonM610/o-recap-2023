@@ -1,6 +1,5 @@
 from flask import Blueprint, redirect, render_template, url_for
-from app.utils.osu import get_user
-from app.utils.analytics import get_profile
+from app.utils.analytics import get_profile, get_id_from_username
 
 users = Blueprint(
     "users",
@@ -11,15 +10,18 @@ users = Blueprint(
 )
 
 
-@users.route("/users/<user_id>", methods=["GET"])
-def user(user_id):
-    if not user_id.isdigit():
-        user = get_user(user_id)
-        return redirect(url_for("users.user", user_id=user.user_id))
+@users.route("/users/<user>", methods=["GET"])
+def user(user):
+    if not user.isdigit():
+        user_id = get_id_from_username(user)
+        if user_id == -1:
+            # return some "invalid user" page
+            return render_template("user.html")
+        return redirect(url_for("users.user", user=user_id))
 
-    user_data = get_profile(int(user_id))
+    user_data = get_profile(int(user))
     if user_data is None:
-        # ?
+        # return some "invalid user" page
         return render_template("user.html")
 
     return render_template("user.html", user=user_data)

@@ -1,6 +1,7 @@
 import boto3, os
 import polars as pl
 from typing import Any, Dict, List
+from boto3.dynamodb.conditions import Key
 from app.models import User, BestScore
 from app.utils.osu import get_user, get_beatmap, get_best_scores
 
@@ -35,6 +36,18 @@ def get_profile(user_id: int) -> Dict[str, Any]:
         return None
 
     return response["Item"]
+
+
+def get_id_from_username(username: str) -> int:
+    response = table.query(
+        IndexName="username-index", KeyConditionExpression=Key("username").eq(username)
+    )
+    print(response)
+
+    if "Items" not in response or len(response["Items"]) == 0:
+        return -1
+
+    return int(response["Items"][0]["user_id"])
 
 
 def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, Any]:
@@ -124,7 +137,6 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "agg": get_aggregates(),
         }
     )
-    print(analytics)
 
     table.update_item(
         Key={"user_id": user_id},

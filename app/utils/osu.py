@@ -22,6 +22,7 @@ token = session.fetch_token(
 def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> Any:
     try:
         response = session.request(method, f"{base_url}{url}", json=body_params)
+        response.raise_for_status()
         return response.json()
     except RequestException as e:
         raise

@@ -29,6 +29,6 @@ def index():
 
         insert_user_and_enqueue(user)
 
-        return redirect(url_for("users.user", user_id=user.user_id))
+        return redirect(url_for("users.user", user=user.user_id))
 
     return render_template("index.html", form=form)
