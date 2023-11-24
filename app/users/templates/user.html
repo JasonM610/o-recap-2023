@@ -1,7 +1,25 @@
-{% extends "layout.html" %}
-
-{% block title %}
-    {% if user %}
-        {{user}} - {{mode}}
-    {% else %}
-{% endblock title %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{url_for('.static', filename='css/user.css')}}">
+    <title>{{ user["username"] }} - Your 2023 Recap</title>
+</head>
+<body>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Leaderboard</a>
+        <a href="#">About</a>
+    </nav>
+    <div>
+        <img src={{ user["avatar_url"] }} alt="Profile Picture" class="profile-pic">
+        {{ user["username"] }}
+        {% if user["best_scores_2023"]|length > 0 %}
+            <ol>
+                {% for best_score in user["best_scores_2023"][:10] %}
+                    <li class="best-score-list">{{best_score["performance_rank"]}}: {{best_score["artist"]}} - {{best_score["title"]}}</li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+    </div>
+</body>
+</html>
