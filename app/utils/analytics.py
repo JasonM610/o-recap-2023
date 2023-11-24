@@ -42,7 +42,6 @@ def get_id_from_username(username: str) -> int:
     response = table.query(
         IndexName="username-index", KeyConditionExpression=Key("username").eq(username)
     )
-    print(response)
 
     if "Items" not in response or len(response["Items"]) == 0:
         return -1
@@ -64,7 +63,7 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
     def get_2023_pp() -> str:
         best_scores = (
-            scores.filter(pl.col("ranked" == 1))
+            scores.filter(pl.col("ranked") == 1)
             .group_by("beatmap_id")
             .agg(pl.col("pp").max())
         )
