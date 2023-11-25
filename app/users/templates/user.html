@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{{url_for('.static', filename='css/user.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/user.css")}}">
     <title>{{ user["username"] }} - Your 2023 Recap</title>
 </head>
 <body>
@@ -10,15 +10,64 @@
         <a href="#">Leaderboard</a>
         <a href="#">About</a>
     </nav>
-    <div>
-        <img src={{ user["avatar_url"] }} alt="Profile Picture" class="profile-pic">
-        {{ user["username"] }}
-        {% if user["best_scores_2023"]|length > 0 %}
+    <div class="user-info">
+        {% set analytics = user.get("analytics") %}
+        <div>
+            <img src="{{ user["avatar_url"] }}" alt="Profile Picture" class="profile-pic">
+        </div>
+        <div class="username">
+            {{ user["username"] }}
+        </div>
+        <div class="year-pp">
+            {{ "{:,}pp".format(analytics["year_pp"]|int|round) if analytics }}
+        </div>
+        <div class="best-scores">
             <ol>
                 {% for best_score in user["best_scores_2023"][:10] %}
-                    <li class="best-score-list">{{best_score["performance_rank"]}}: {{best_score["artist"]}} - {{best_score["title"]}}</li>
+                    <li class="best-scores-list">{{best_score["performance_rank"]}}: {{best_score["artist"]}} - {{best_score["title"]}}</li>
                 {% endfor %}
             </ol>
+        </div>
+        {% if analytics %}
+            <div class="analytics">
+                {% set pass_data = analytics.get("highest_sr_pass", {}) %}
+                {% set averages = analytics.get("avg", {}) %}
+                {% set aggregates = analytics.get("agg", {}) %}
+                <div class="summary">
+                    Playcount: {{ "{:,}".format(user["playcount_2023"]) }}
+                    Replays Watched: {{ "{:,}".format(user["replays_watched_2023"]) }}
+                    {% if user["badges_2023"] > 0 %}
+                        Badges: {{ user["badges_2023"] }}
+                    {% endif %}
+                    Ranked Score: {{ "{:,}".format(aggregates["ranked_score"]) }}
+                </div>
+                <div class="scores-summary">
+                    Scores: {{ "{:,}".format(aggregates["scores"]) }}
+                    Star Rating: {{ averages["sr"] }}
+                    Accuracy: {{ "{:.2%}".format(averages["acc"]|float) }}
+                    AR: {{ averages["ar"] }}
+                    CS: {{ averages["cs"] }}
+                    BPM: {{ averages["bpm"] }}
+                    Length: {{ averages["len"] }}
+                </div>
+                <div class="highest-sr-pass">
+                    <img src="{{ pass_data["card_url"] }}" alt="Map Background" class="pass-background">
+                    {{ "{:.2%}".format(pass_data["acc"]|float) }}
+                    {{ "{:.2f}".format(pass_data["sr"]|float) }}
+                </div>
+                <div class="habits">
+                    Most Played Mods: 
+                    <ol>
+                        {% for i in range(3) %}
+                            <li>{{aggregates["most_played_mods"]["mods"][i]}}: {{aggregates["most_played_mods"]["counts"][i]}}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        {% elif analytics is not none %}
+            No scores found in 2023. Please reach out if this seems wrong!
+        {% else %}
+            Your scores aren't processed yet. Please come back later!
         {% endif %}
     </div>
 </body>

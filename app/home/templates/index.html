@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{{url_for('.static', filename='css/main.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/main.css")}}">
     <title>Your 2023 Recap</title>
 </head>
 <body>
@@ -15,7 +15,7 @@
             {{ form.hidden_tag() }}
             <div>
                 {{ form.user(placeholder="Search (Username/ID)", class_="form-user") }}
-                <input type="image" src="{{url_for('.static', filename='img/search.png')}}" alt="Submit" class="submit-image">
+                <input type="image" src="{{url_for(".static", filename="img/search.png")}}" alt="Submit" class="submit-image">
         </div>
     </form>
 </body>

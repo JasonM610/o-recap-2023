@@ -40,7 +40,8 @@ def get_profile(user_id: int) -> Dict[str, Any]:
 
 def get_id_from_username(username: str) -> int:
     response = table.query(
-        IndexName="username-index", KeyConditionExpression=Key("username").eq(username)
+        IndexName="username-index",
+        KeyConditionExpression=Key("username_search").eq(username.lower()),
     )
 
     if "Items" not in response or len(response["Items"]) == 0:
@@ -89,8 +90,8 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "title": beatmap_data["beatmapset"]["title"],
             "version": beatmap_data["version"],
             "mods": best_pass["mods"][0],
-            "accuracy": str(best_pass["accuracy"][0]),
-            "star_rating": str(round(best_pass["star_rating"][0], 2)),
+            "acc": str(round(best_pass["accuracy"][0], 4)),
+            "sr": str(round(best_pass["star_rating"][0], 2)),
             "card_url": beatmap_data["beatmapset"]["covers"]["list"],
         }
 
