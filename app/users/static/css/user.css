@@ -1,0 +1,152 @@
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background: rgb(32, 32, 32);
+    color: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+}
+
+ol {
+    list-style: none;
+    padding: 0;
+}
+
+nav {
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(20,20,20,1) 5%);
+    font-family: Helvetica, Arial, sans-serif;
+    padding: 12px;
+    text-align: center;
+    position: fixed; 
+    width: 100%; 
+    top: 0; 
+}
+
+nav a {
+    color: rgb(150, 150, 150);
+    text-decoration: none;
+    font-size: 20px;
+    padding: 16px;
+    margin: 0 5px;
+}
+
+.user-info {
+    display: flex;
+    height: calc(100vh - 60px);
+    margin-top: 60px;
+}
+
+.basic-info {
+    flex: 0.36;
+    border-right: 4px solid rgb(0,0,0);
+}
+
+.user-details {
+    text-align: center;
+}
+
+.profile-pic {
+    width: 128px;
+    height: 128px;
+    border: 3px solid rgb(48, 7, 42);
+    border-radius: 28px;
+}
+
+.username {
+    text-decoration: none;
+}
+
+.username:link,
+.username:visited,
+.username:hover {
+    color: inherit;
+}
+
+.best-scores-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    height: 28px;
+    width: 60%;
+    margin: auto;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+}
+
+.best-scores-info {
+    flex: 0.75;
+    text-align: center;
+    text-decoration: none;
+}
+
+.best-scores-info:link,
+.best-scores-info:visited,
+.best-scores-info:hover {
+    color: inherit;
+}
+
+.best-scores-performance {
+    flex: 0.25;
+    text-align: center;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.analytics {
+    flex: 0.64;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary,
+.scores,
+.habits {
+    text-align: center;
+    width: 100%; 
+    flex: 0.33; 
+    border-bottom: 4px solid rgb(0,0,0);
+}
+
+.summary {
+    display: flex;
+}
+
+.summary > div {
+    flex: 1;
+    text-align: center;
+}
+
+.scores {
+    display: flex;
+}
+
+.scores-total {
+    flex: 0.05;
+}
+
+.scores-avgs {
+    flex: 0.45;
+}
+
+.highest-sr-pass {
+    flex: 0.5;
+}
+
+.pass-background {
+    height: 128px;
+}
+
+.habits {
+    display: flex;
+}
+
+.letter-grades,
+.most-played-mods,
+.most-played-mappers {
+    text-align: center;
+    flex: 0.33;
+}

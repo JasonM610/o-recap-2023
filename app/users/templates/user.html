@@ -12,63 +12,119 @@
     </nav>
     <div class="user-info">
         {% set analytics = user.get("analytics") %}
-        <div>
-            <img src="{{ user["avatar_url"] }}" alt="Profile Picture" class="profile-pic">
+        <div class="basic-info">
+            <div class="user-details">
+                <div>
+                    <img src="{{ user["avatar_url"] }}" alt="Profile Picture" class="profile-pic">
+                </div>
+                <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
+                <div class="year-pp">
+                    {% if analytics %}
+                        {{ "{:,}".format(analytics["year_pp"]|int|round) }}pp<sup><i>(2023)</i></sup>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="best-scores">
+                <ol>
+                    {% for best_score in user["best_scores_2023"][:10] %}
+                        <li class="best-scores-list" style="background: url('{{ best_score["background_url"] }}') center center / cover;">
+                            <div class="best-scores-info">
+                                <a href="https://osu.ppy.sh/b/{{ best_score["beatmap_id"] }}" class="best-scores-info">
+                                    <div class="best-scores-info__song">{{ best_score["artist"] }} - {{ best_score["title"] }}</div>
+                                    <div class="best-scores-info__version">[{{ best_score["version"] }}]</div>
+                                </a>
+                            </div>
+                            <div class="best-scores-performance">
+                                {% if best_score["mods"]|length > 0 %}
+                                    {{ best_score["mods"]|join(",") }}<br>
+                                {% endif %}
+                                {{ "{:.2%}".format(best_score["accuracy"]|float)  }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
         </div>
-        <div class="username">
-            {{ user["username"] }}
-        </div>
-        <div class="year-pp">
-            {{ "{:,}pp".format(analytics["year_pp"]|int|round) if analytics }}
-        </div>
-        <div class="best-scores">
-            <ol>
-                {% for best_score in user["best_scores_2023"][:10] %}
-                    <li class="best-scores-list">{{best_score["performance_rank"]}}: {{best_score["artist"]}} - {{best_score["title"]}}</li>
-                {% endfor %}
-            </ol>
-        </div>
-        {% if analytics %}
-            <div class="analytics">
+        <div class="analytics">
+            {% if analytics %}
                 {% set pass_data = analytics.get("highest_sr_pass", {}) %}
                 {% set averages = analytics.get("avg", {}) %}
                 {% set aggregates = analytics.get("agg", {}) %}
                 <div class="summary">
-                    Playcount: {{ "{:,}".format(user["playcount_2023"]) }}
-                    Replays Watched: {{ "{:,}".format(user["replays_watched_2023"]) }}
+                    <div class="playcount">
+                        Playcount<br>
+                        {{ "{:,}".format(user["playcount_2023"]) }}
+                    </div>
+                    <div class="replays-watched">
+                        Replays Watched<br>
+                        {{ "{:,}".format(user["replays_watched_2023"]) }}            
+                    </div>
                     {% if user["badges_2023"] > 0 %}
-                        Badges: {{ user["badges_2023"] }}
+                        <div class="badges">
+                            Badges<br>
+                            {{ user["badges_2023"] }}
+                        </div>
                     {% endif %}
-                    Ranked Score: {{ "{:,}".format(aggregates["ranked_score"]) }}
+                    <div class="ranked-score">
+                        Ranked Score<br>
+                        {{ "{:,}".format(aggregates["ranked_score"]) }}
+                    </div>
                 </div>
-                <div class="scores-summary">
-                    Scores: {{ "{:,}".format(aggregates["scores"]) }}
-                    Star Rating: {{ averages["sr"] }}
-                    Accuracy: {{ "{:.2%}".format(averages["acc"]|float) }}
-                    AR: {{ averages["ar"] }}
-                    CS: {{ averages["cs"] }}
-                    BPM: {{ averages["bpm"] }}
-                    Length: {{ averages["len"] }}
-                </div>
-                <div class="highest-sr-pass">
-                    <img src="{{ pass_data["card_url"] }}" alt="Map Background" class="pass-background">
-                    {{ "{:.2%}".format(pass_data["acc"]|float) }}
-                    {{ "{:.2f}".format(pass_data["sr"]|float) }}
+                <div class="scores">
+                    <div class="scores-total"><p>Scores</p><p>{{ "{:,}".format(aggregates["scores"]) }}</p></div>
+                    <div class="scores-avgs">
+                        Averages
+                        <ol>
+                            <li>Star Rating: {{ averages["sr"] }}</li>
+                            <li>Accuracy: {{ "{:.2%}".format(averages["acc"]|float) }}</li>
+                            <li>AR: {{ averages["ar"] }}</li>
+                            <li>CS: {{ averages["cs"] }}</li>
+                            <li>BPM: {{ averages["bpm"] }}</li>
+                            <li>Length: {{ averages["len"] }}</li>
+                        </ol>
+                    </div>
+                    <div class="highest-sr-pass">
+                        <img src="{{ pass_data["card_url"] }}" alt="Map Background" class="pass-background"><br>
+                        {{ pass_data["artist"] }} - {{ pass_data["title"] }}<br>
+                        [{{ pass_data["version"] }}]<br>
+                        {{ pass_data["mods"] }} ({{ "{:.2f}".format(pass_data["sr"]|float) }}*)<br>
+                        {{ "{:.2%}".format(pass_data["acc"]|float) }}<br>
+                        
+                    </div>
                 </div>
                 <div class="habits">
-                    Most Played Mods: 
-                    <ol>
-                        {% for i in range(3) %}
-                            <li>{{aggregates["most_played_mods"]["mods"][i]}}: {{aggregates["most_played_mods"]["counts"][i]}}</li>
-                        {% endfor %}
-                    </ol>
+                    {% set grades = ["XH", "SH", "X", "S", "A", "B", "C", "D"] %}
+                    <div class="letter-grades">
+                        Letter Grades
+                        <ol>
+                            {% for i in range(8) %}
+                                <li>{{grades[i]}}: {{aggregates["letter_grades"][i]}}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    <div class="most-played-mods">
+                        Most Played Mods 
+                        <ol>
+                            {% for i in range(3) %}
+                                <li>{{aggregates["most_played_mods"]["mods"][i]}}: {{aggregates["most_played_mods"]["counts"][i]}}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    <div class="most-played-mappers">
+                        Most Played Mappers
+                        <ol>
+                            {% for i in range(3) %}
+                                <li>{{aggregates["most_played_mappers"]["set_owner"][i]}}: {{aggregates["most_played_mappers"]["counts"][i]}}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
                 </div>
-            </div>
-        {% elif analytics is not none %}
-            No scores found in 2023. Please reach out if this seems wrong!
-        {% else %}
-            Your scores aren't processed yet. Please come back later!
-        {% endif %}
+            {% elif analytics is not none %}
+                <div class="no-scores-message">No scores found in 2023. Please reach out if this seems wrong!</div>
+            {% else %}
+                <div class="no-scores-message">Your scores aren't processed yet. Please come back later!</div>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
