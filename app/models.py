@@ -44,6 +44,7 @@ class User:
         return {
             "user_id": self.user_id,
             "username": self.username,
+            "username_search": self.username.lower(),
             "country_code": self.country_code,
             "avatar_url": self.avatar_url,
             "beatmaps_played": self.beatmaps_played,
@@ -135,8 +136,7 @@ class BestScore:
     title = str
     version = str
     creator_id = int
-    cover_url = str
-    list_url = str
+    background_url = str
     created_at = datetime
 
     def __init__(self, idx: int, play: Dict[str, Any]) -> None:
@@ -155,8 +155,7 @@ class BestScore:
         self.title = set["title"]
         self.version = map["version"]
         self.creator_id = set["user_id"]
-        self.cover_url = set["covers"]["cover"]
-        self.list_url = set["covers"]["list"]
+        self.background_url = set["covers"]["card@2x"]
         self.created_at = play["created_at"]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -173,7 +172,6 @@ class BestScore:
             "title": self.title,
             "version": self.version,
             "creator_id": self.creator_id,
-            "cover_url": self.cover_url,
-            "list_url": self.list_url,
+            "background_url": self.background_url,
             "created_at": self.created_at,
         }
