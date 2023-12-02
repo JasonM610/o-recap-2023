@@ -63,13 +63,22 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 
 def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
     def get_2023_pp() -> str:
+        """
+        Calculates the player's net performance points (pp) based only on scores set in 2023
+        Value is calculated as outlined in osu!'s wiki (https://osu.ppy.sh/wiki/en/Performance_points#calculation), but doesn't include bonus pp
+
+        Returns:
+            str: The player's net performance points
+        """
+        # filter scores list to ranked maps, get highest pp score on each map
         best_scores = (
             scores.filter(pl.col("ranked") == 1)
             .group_by("beatmap_id")
             .agg(pl.col("pp").max())
         )
-        score_ranking = best_scores["pp"].rank(method="ordinal", descending=True)
 
+        # assign rank to each score based on pp value, return weighted sum
+        score_ranking = best_scores["pp"].rank(method="ordinal", descending=True)
         return str(round((best_scores["pp"] * (0.95 ** (score_ranking - 1))).sum(), 3))
 
     def get_highest_sr_pass() -> Dict[str, Any]:
@@ -112,9 +121,11 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
         ]
 
         map_counts = scores["set_owner"].value_counts(sort=True).head(3)
-        map_counts = map_counts.replace(
-            "set_owner",
-            map_counts["set_owner"].apply(get_user).apply(lambda user: user.username),
+        map_counts = map_counts.with_columns(
+            map_counts["set_owner"]
+            .apply(get_user)
+            .apply(lambda user: user.username)
+            .alias("username")
         )
 
         mod_counts = scores["mods"].value_counts(sort=True).head(3)
