@@ -101,7 +101,7 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "mods": best_pass["mods"][0],
             "acc": str(round(best_pass["accuracy"][0], 4)),
             "sr": str(round(best_pass["star_rating"][0], 2)),
-            "card_url": beatmap_data["beatmapset"]["covers"]["list"],
+            "background_url": beatmap_data["beatmapset"]["covers"]["card@2x"],
         }
 
     def get_averages() -> Dict[str, Any]:
