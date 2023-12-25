@@ -1,130 +1,270 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/user.css")}}">
-    <title>{{ user["username"] }} - Your 2023 Recap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user["username"] }} - o!Recap 2023</title>
+    {% set analytics = user.get("analytics") %}
+    {% if analytics is not none %}
+    {% set pass_data = analytics.get("highest_sr_pass", {}) %}
+    {% set averages = analytics.get("avg", {}) %}
+    {% set aggregates = analytics.get("agg", {}) %}
+    {% set grades = ["XH", "SH", "X", "S", "A", "B", "C", "D"] %}
+    {% set mappers = aggregates["most_played_mappers"] %}
+    {% set mods = aggregates["most_played_mods"] %}
+    {% endif %}
 </head>
 <body>
     <nav>
-        <a href="#">Home</a>
-        <a href="#">Leaderboard</a>
-        <a href="#">About</a>
+        <a href="/">o!Recap 2023</a>
     </nav>
+    <div class="background"></div>
     <div class="user-info">
-        {% set analytics = user.get("analytics") %}
         <div class="basic-info">
             <div class="user-details">
-                <div>
-                    <img src="{{ user["avatar_url"] }}" alt="Profile Picture" class="profile-pic">
+                <div class="user-identity">
+                    <div>
+                        <img class="square-img user-pfp" src="{{ user["avatar_url"] }}">
+                    </div>
+                    <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
                 </div>
-                <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
-                <div class="year-pp">
-                    {% if analytics %}
-                        {{ "{:,}".format(analytics["year_pp"]|int|round) }}pp<sup><i>(2023)</i></sup>
-                    {% endif %}
+                <div class="user_nums">
+                    <div class="user-stats">
+                        <div class="playcount"><b class="basic-info__bold">{{ "{:,}".format(user["playcount_2023"]) }}</b> Playcount</div>
+                        <div class="replays-watched"><b class="basic-info__bold">{{ "{:,}".format(user["replays_watched_2023"]) }}</b> Replays Watched</div>
+                        <div class="badges"><b class="basic-info__bold">{{ user["badges_2023"] }}</b> Badge{% if user["badges_2023"] != 1%}s{% endif %}</div>
+                    </div>
                 </div>
             </div>
+            <div class="summary">
+                {% if analytics %}
+                <div class="summary-scores">
+                    <div class="score-nums">
+                        <div class="score-counts">
+                            <div class="summary-title">Scores</div>
+                            <div class="summary-val">{{ "{:,}".format(aggregates["scores"]) }}</div>
+                        </div>
+                        <div class="ranked-score">
+                            <div class="summary-title">Ranked Score</div>
+                            <div class="summary-val">{{ "{:,}".format(aggregates["ranked_score"]|int) }}</div>
+                        </div>
+                    </div>
+                    <div class="year-pp">
+                        Using only the scores you submitted in 2023, you would have <b class="basic-info__bold">{{ "{:,}pp".format(analytics["year_pp"]|int|round) }}</b>
+                    </div>
+                </div>
+                <div class="grades">
+                    <div class="grades-list">
+                        <ol>
+                            {% for i in range(4) %}
+                            <li>
+                                <div class="grades-data">
+                                    <img class="grades-data__img" src="{{ url_for(".static", filename="img/grades/" + grades[i] + ".png") }}"></img>
+                                    {{ aggregates["letter_grades"][i] }}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    <div class="grades-list">
+                        <ol>
+                            {% for i in range(4, 8) %}
+                            <li>
+                                <div class="grades-data">
+                                    <img class="grades-data__img" src="{{ url_for(".static", filename="img/grades/" + grades[i] + ".png") }}"></img>
+                                    {{ aggregates["letter_grades"][i] }}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="score-info">
             <div class="best-scores">
                 <ol>
-                    {% for best_score in user["best_scores_2023"][:10] %}
-                        <li class="best-scores-list" style="background: url('{{ best_score["background_url"] }}') center center / cover;">
-                            <div class="best-scores-info">
-                                <a href="https://osu.ppy.sh/b/{{ best_score["beatmap_id"] }}" class="best-scores-info">
-                                    <div class="best-scores-info__song">{{ best_score["artist"] }} - {{ best_score["title"] }}</div>
-                                    <div class="best-scores-info__version">[{{ best_score["version"] }}]</div>
+                    {% for best_score in user["best_scores_2023"][:8] %}
+                    <li>
+                        <div class="best-scores-list">
+                            <div class="best-scores-list__rank">
+                                #{{ best_score["performance_rank"] }}
+                            </div>
+                            <div class="best-scores-list__score">
+                                <a href="https://osu.ppy.sh/b/{{ best_score["beatmap_id"] }}" class="best-scores-list__link">
+                                    <div class="best-scores-background" style="background: url('{{ best_score["background_url"] }}') center center / cover;"></div>
+                                    <div class="best-scores-header">
+                                        <img class="best-scores-grade" src="{{ url_for(".static", filename="img/grades/" + best_score["letter_grade"] + ".png") }}"></img>
+                                        <div class="best-scores-header__pp">{{ "{:,}pp".format(best_score["pp"]|int|round) }}</div>
+                                    </div>
+                                    <div class="best-scores-info">
+                                        <div class="best-scores-info__song">
+                                            {{ best_score["artist"] }} - {{ best_score["title"] }}
+                                        </div>
+                                        <div class="best-scores-info__version">
+                                            [{{ best_score["version"] }}]
+                                        </div>
+                                    </div>
+                                    <div class="best-scores-perf">
+                                        {% if best_score["mods"]|length > 0 %}
+                                        <div class="best-scores-perf__mods">
+                                            {{ best_score["mods"]|join(",") }}
+                                        </div>
+                                        {% else %}
+                                        <div class="best-scores-perf__mods">NM</div>
+                                        {% endif %}
+                                        <div class="best-scores-perf__acc">{{ "{:.2%}".format(best_score["accuracy"]|float) }}</div>
+                                    </div>
                                 </a>
                             </div>
-                            <div class="best-scores-performance">
-                                {% if best_score["mods"]|length > 0 %}
-                                    {{ best_score["mods"]|join(",") }}<br>
-                                {% endif %}
-                                {{ "{:.2%}".format(best_score["accuracy"]|float)  }}
-                            </div>
-                        </li>
+                        </div>
+                    </li>
                     {% endfor %}
                 </ol>
             </div>
-        </div>
-        <div class="analytics">
-            {% if analytics %}
-                {% set pass_data = analytics.get("highest_sr_pass", {}) %}
-                {% set averages = analytics.get("avg", {}) %}
-                {% set aggregates = analytics.get("agg", {}) %}
-                <div class="summary">
-                    <div class="playcount">
-                        Playcount<br>
-                        {{ "{:,}".format(user["playcount_2023"]) }}
-                    </div>
-                    <div class="replays-watched">
-                        Replays Watched<br>
-                        {{ "{:,}".format(user["replays_watched_2023"]) }}            
-                    </div>
-                    {% if user["badges_2023"] > 0 %}
-                        <div class="badges">
-                            Badges<br>
-                            {{ user["badges_2023"] }}
-                        </div>
-                    {% endif %}
-                    <div class="ranked-score">
-                        Ranked Score<br>
-                        {{ "{:,}".format(aggregates["ranked_score"]) }}
-                    </div>
-                </div>
+            <div class="analytics">
+                {% if analytics %}
                 <div class="scores">
-                    <div class="scores-total"><p>Scores</p><p>{{ "{:,}".format(aggregates["scores"]) }}</p></div>
                     <div class="scores-avgs">
-                        Averages
-                        <ol>
-                            <li>Star Rating: {{ averages["sr"] }}</li>
-                            <li>Accuracy: {{ "{:.2%}".format(averages["acc"]|float) }}</li>
-                            <li>AR: {{ averages["ar"] }}</li>
-                            <li>CS: {{ averages["cs"] }}</li>
-                            <li>BPM: {{ averages["bpm"] }}</li>
-                            <li>Length: {{ averages["len"] }}</li>
-                        </ol>
+                        <div class="analytics-header">
+                            Averages
+                        </div>
+                        <div class="averages">
+                            <div class="averages-stat">
+                                <div class="averages-stat__acc">
+                                    <div class="analytics-title">Accuracy</div> 
+                                    <div class="analytics-val">{{ "{:.2%}".format(averages["acc"]|float) }}</div>
+                                </div>
+                                <div class="averages-stat__sr">
+                                    <div class="analytics-title">Star Rating</div>
+                                    <div class="analytics-val">{{ "{:.2f}★".format(averages["sr"]|float) }}</div>
+                                </div>
+                            </div>
+                            <div class="averages-diff">
+                                <div class="averages-diff__ar">
+                                    <div class="analytics-title">Approach Rate</div>
+                                    <div class="analytics-val">{{ "{:.2f}".format(averages["ar"]|float) }}</div>
+                                </div>
+                                <div class="averages-diff__cs">
+                                    <div class="analytics-title">Circle Size</div>
+                                    <div class="analytics-val">{{ "{:.2f}".format(averages["cs"]|float) }}</div>
+                                </div>
+                            </div>
+                            <div class="averages-song">
+                                <div class="averages-song__bpm">
+                                    <div class="analytics-title">BPM</div>
+                                    <div class="analytics-val">{{ averages["bpm"] }}</div>
+                                </div>
+                                <div class="averages-song__len">
+                                    <div class="analytics-title">Length</div>
+                                    <div class="analytics-val">{{ averages["len"]|int // 60 }}:{{ "{:02d}".format(averages["len"]|int % 60) }} </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="highest-sr-pass">
-                        <img src="{{ pass_data["card_url"] }}" alt="Map Background" class="pass-background"><br>
-                        {{ pass_data["artist"] }} - {{ pass_data["title"] }}<br>
-                        [{{ pass_data["version"] }}]<br>
-                        {{ pass_data["mods"] }} ({{ "{:.2f}".format(pass_data["sr"]|float) }}*)<br>
-                        {{ "{:.2%}".format(pass_data["acc"]|float) }}<br>
-                        
+                        <div class="analytics-header">
+                            Highest Star Pass
+                        </div>
+                        <div class="pass-data">
+                            <div class="pass-data__score">
+                                <a href="https://osu.ppy.sh/b/{{ pass_data["beatmap_id"] }}" class="pass-data__link">
+                                    <div class="pass-background"><img class="pass-background__img" src="{{ pass_data["background_url"] }}"></img></div>
+                                    <div class="pass-header">
+                                        <div class="pass-sr">{{ "{:.2f}★".format(pass_data["sr"]|float) }}</div>
+                                        <div class="pass-mods">{{ pass_data["mods"] }}</div>
+                                    </div>
+                                    <div class="pass-map">
+                                        <div class="pass-info">
+                                            <div class="pass-info__song">{{ pass_data["artist"] }} - {{ pass_data["title"] }}</div>
+                                            <div class="pass-info__version">[{{ pass_data["version"] }}]</div> 
+                                        </div>
+                                        <div class="pass-perf">
+                                            <div class="pass-perf__acc">{{ "{:.2%}".format(pass_data["acc"]|float) }}</div>
+                                            <div class="pass-grade">
+                                                <img class="pass-grade__img" src="{{ url_for(".static", filename="img/grades/" + pass_data["letter_grade"] + ".png") }}"></img>
+                                            </div>
+                                            <div class="pass-perf__combo">
+                                                <div class="pass-combo">{{ "{:,}".format(pass_data["combo"]) }}x</div>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="habits">
-                    {% set grades = ["XH", "SH", "X", "S", "A", "B", "C", "D"] %}
-                    <div class="letter-grades">
-                        Letter Grades
-                        <ol>
-                            {% for i in range(8) %}
-                                <li>{{grades[i]}}: {{aggregates["letter_grades"][i]}}</li>
-                            {% endfor %}
-                        </ol>
+                <div class="most-played">
+                    <div class="mappers">
+                        <div class="analytics-header">
+                            Most Played Mappers
+                        </div>
+                        <div class="mappers-list">
+                            <ol>
+                                {% for i in range(mappers["set_owner"]|length) %}
+                                <li>
+                                    <div class="mappers-data">
+                                        <div class="mappers-data__icons">
+                                            <img class="square-img" src="https://a.ppy.sh/{{ mappers["set_owner"][i] }}"></img>
+                                        </div>
+                                        <div class="mappers-data__name">
+                                            <a href="https://osu.ppy.sh/users/{{ mappers["set_owner"][i] }}" class="mappers-data__link">
+                                                <div class="analytics-title">{{ mappers["username"][i] }}</div>
+                                            </a>
+                                            <div class="analytics-val">{{ mappers["counts"][i] }} scores</div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
                     </div>
-                    <div class="most-played-mods">
-                        Most Played Mods 
-                        <ol>
-                            {% for i in range(3) %}
-                                <li>{{aggregates["most_played_mods"]["mods"][i]}}: {{aggregates["most_played_mods"]["counts"][i]}}</li>
-                            {% endfor %}
-                        </ol>
-                    </div>
-                    <div class="most-played-mappers">
-                        Most Played Mappers
-                        <ol>
-                            {% for i in range(3) %}
-                                <li>{{aggregates["most_played_mappers"]["set_owner"][i]}}: {{aggregates["most_played_mappers"]["counts"][i]}}</li>
-                            {% endfor %}
-                        </ol>
+                    <div class="mods">
+                        <div class="analytics-header">
+                            Most Played Mods
+                        </div>
+                        <div class="mods-list">
+                            <ol>
+                                {% for i in range(mods["mods"]|length) %}
+                                <li>
+                                    <div class="mods-data">
+                                        <div class="mods-data__name">
+                                            <div class="analytics-title">{{ mods["mods"][i] }}</div>
+                                            <div class="analytics-val">{{ "{:,}".format(mods["counts"][i]) }} scores</div>
+                                        </div>
+                                        <div class="mods-data__icons">
+                                            <div class="mods-icons">
+                                                {% set mods_list = mods["mods"][i].split(',') %}
+                                                {% for j in range(mods_list|length) %}
+                                                    <img class="mods-icons__img" src="{{ url_for(".static", filename="img/mods/" + mods_list[j] + ".png") }}">
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
                     </div>
                 </div>
-            {% elif analytics is not none %}
-                <div class="no-scores-message">No scores found in 2023. Please reach out if this seems wrong!</div>
-            {% else %}
-                <div class="no-scores-message">Your scores aren't processed yet. Please come back later!</div>
-            {% endif %}
+                {% elif analytics is not none %}
+                <div class="no-scores">
+                    <div class="no-scores__header">No scores found in 2023.</div>
+                    <div class="no-scores__sub">Please reach out if this seems wrong!</div>
+                </div>
+                {% else %}
+                <div class="no-scores">
+                    <div class="no-scores__header">Your scores aren't processed yet.</div>
+                    <div class="no-scores__sub">Please come back later!</div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
+    <div class="background"></div>
 </body>
 </html>

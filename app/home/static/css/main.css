@@ -1,36 +1,44 @@
+:root {
+    font-family: Inter, sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+}
+@supports (font-variation-settings: normal) {
+:root { font-family: InterVariable, sans-serif; }
+}
+
 body {
-    font-family: Helvetica, Arial, sans-serif;
-    background: rgb(32, 32, 32);
+    background: rgb(18, 15, 26);
+    color: rgb(255,255,255);
     margin: 0;
     padding: 0;
-    height: 100vh;
+}
+
+nav {
+    background:rgba(7, 5, 15, 1);
+    height: 4vh;
+    padding: 0.5vh;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    display: flex;
+    align-items: center;
+}
+
+nav a {
+    color: rgb(255,255,255);
+    text-decoration: none;
+    font-size: 1.3vw;
+    font-weight: 600;
+    padding-left: 0.5vw;
+}
+
+form {
+    margin-top: 35%;
+    height: calc(100vh - (48px + 35%));
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-nav {
-    background: rgb(0,0,0);
-    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(20,20,20,1) 5%);
-    font-family: Helvetica, Arial, sans-serif;
-    padding: 12px;
-    text-align: center;
-    position: fixed; 
-    width: 100%; 
-    top: 0; 
-}
-
-nav a {
-    color: rgb(150, 150, 150);
-    text-decoration: none;
-    font-size: 20px;
-    padding: 16px;
-    margin: 0 5px;
-}
-
-form {
-    margin-top: 450px;
 }
 
 .form-container {
@@ -39,28 +47,28 @@ form {
 }
 
 .form-user {
-    width: 440px;
+    width: 450px;
     font-size: 18px;
-    border-radius: 16px;
-    padding: 8px;
+    border-radius: 20px;
+    padding: 10px 16px 10px 16px;
     color: rgb(255, 255, 255);
-    border: 2px solid rgb(253, 170, 211);
-    background-color: rgb(30, 30, 30);
+    border: 2px solid rgb(200, 170, 253);
+    background-color: rgb(18, 16, 27);
     outline: none;
     box-sizing: border-box; 
 }
 
 .form-user::placeholder {
-    padding-left: 5px;
+    color: rgb(185, 180, 192);
 }
 
 .submit-image {
     position: absolute;
     top: 50%;
-    right: 10px;
+    right: 16px;
     transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: none;
     border: none;
     cursor: pointer;
