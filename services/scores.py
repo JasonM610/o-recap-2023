@@ -40,7 +40,6 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
         return score_dict
 
     scores = []
-    print(user_id)
 
     for beatmap_id in collect_beatmap_ids(user_id, beatmaps_played):
         beatmap_data = get_beatmap(beatmap_id)
