@@ -1,19 +1,25 @@
-import boto3, os
+import boto3, os, time
 import polars as pl
 from typing import Any, Dict, List
 from boto3.dynamodb.conditions import Key
 from app.models import User, BestScore
 from app.utils.osu import get_user, get_beatmap, get_best_scores
+from config import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_QUEUE_URL
 
-# sqs = boto3.client("sqs", region_name=os.environ.get("REGION"))
-# s3 = boto3.client("s3")
-# bucket = s3.Bucket(osu.environ.get("BUCKET_NAME"))
-dynamo = boto3.resource(
-    "dynamodb",
-    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY"),
-    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-    region_name=os.environ.get("REGION"),
+
+access_key = os.environ.get("AWS_ACCESS_KEY")
+secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+region = os.environ.get("REGION")
+
+session = boto3.Session(
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION,
 )
+
+sqs = session.resource("sqs")
+queue = sqs.Queue(AWS_QUEUE_URL)
+dynamo = session.resource("dynamodb")
 table = dynamo.Table("ProfileData")
 
 
@@ -23,10 +29,9 @@ def insert_user_and_enqueue(user: User) -> None:
 
     best_scores = get_best_scores(user.user_id)
     initial_data = build_initial_data(user, best_scores)
-    table.put_item(Item=initial_data)
 
-    message_body = {"UserID": str(user.user_id)}
-    # sqs.send_message(QueueUrl=os.environ.get("QUEUE_URL"), MessageBody=message_body)
+    table.put_item(Item=initial_data)
+    queue.send_message(MessageBody=str(user.user_id))
 
 
 def get_profile(user_id: int) -> Dict[str, Any]:
@@ -63,13 +68,6 @@ def build_initial_data(user: User, best_scores: List[BestScore]) -> Dict[str, An
 
 def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
     def get_2023_pp() -> str:
-        """
-        Calculates the player's net performance points (pp) based only on scores set in 2023
-        Value is calculated as outlined in osu!'s wiki (https://osu.ppy.sh/wiki/en/Performance_points#calculation), but doesn't include bonus pp
-
-        Returns:
-            str: The player's net performance points
-        """
         # filter scores list to ranked maps, get highest pp score on each map
         best_scores = (
             scores.filter(pl.col("ranked") == 1)
@@ -100,6 +98,10 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
             "version": beatmap_data["version"],
             "mods": best_pass["mods"][0],
             "acc": str(round(best_pass["accuracy"][0], 4)),
+            "pp": round(best_pass["pp"][0]),
+            "letter_grade": best_pass["letter_grade"][0],
+            "combo": best_pass["max_combo"][0],
+            "max_combo": beatmap_data["max_combo"],
             "sr": str(round(best_pass["star_rating"][0], 2)),
             "background_url": beatmap_data["beatmapset"]["covers"]["card@2x"],
         }
