@@ -24,7 +24,7 @@ def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> A
         response = session.request(method, f"{base_url}{url}", json=body_params)
         response.raise_for_status()
         return response.json()
-    except RequestException as e:
+    except RequestException:
         raise
 
 
@@ -33,7 +33,7 @@ def get_user(user: Union[int, str]) -> User:
     try:
         data = make_request("GET", url)
         return User(data)
-    except RequestException as e:
+    except RequestException:
         return None
 
 
@@ -46,7 +46,7 @@ def get_beatmap_scores(user_id: int, beatmap_id: int) -> List[Score]:
             for score in data.get("scores", [])
             if score["created_at"][:4] == "2023"
         ]
-    except RequestException as e:
+    except RequestException:
         return []
 
 
@@ -55,7 +55,7 @@ def get_beatmap(beatmap_id: int) -> Dict[str, Any]:
     try:
         data = make_request("GET", url)
         return data
-    except RequestException as e:
+    except RequestException:
         return None
 
 
@@ -64,7 +64,7 @@ def get_beatmap_attribs(beatmap_id: int, body_params: Dict[str, Any]) -> Dict[st
     try:
         data = make_request("POST", url, body_params)
         return data.get("attributes")
-    except RequestException as e:
+    except RequestException:
         return None
 
 
