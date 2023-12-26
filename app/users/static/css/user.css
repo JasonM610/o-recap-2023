@@ -56,7 +56,7 @@ nav a {
 }
 
 .background {
-    flex: 0.07;
+    flex: 0.06;
     background: rgb(18, 15, 26);
 }
 
@@ -121,7 +121,6 @@ nav a {
 .summary {
     flex: 0.6;
     padding-left: 1.25vw;
-    background: rgb(24, 22, 36);
     display: flex;
 }
 
@@ -143,12 +142,9 @@ nav a {
     flex-direction: column;
 }
 
-.score-nums {
-    flex: 0.5;
-    display: flex;
-}
-
+.score-nums,
 .year-pp {
+    flex: 0.5;
     width: 75%;
     font-size: 1vw;
     margin: auto;
@@ -201,7 +197,7 @@ nav a {
 
 .best-scores {
     flex: 0.4;
-    margin: 1.25vw 0.625px 0px 0.625px;
+    margin: 1vw 0.625px 0px 0.625px;
 }
 
 .best-scores-list {
@@ -210,7 +206,7 @@ nav a {
 }
 
 .best-scores-list__rank {
-    flex: 0.08;
+    flex: 0.07;
     margin-right: 2%;
     font-size: 1vw;
     font-weight: 600;
@@ -221,7 +217,7 @@ nav a {
 }
 
 .best-scores-list__score {
-    flex: 0.88;
+    flex: 0.9;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -230,9 +226,9 @@ nav a {
     margin-bottom: 0.8vh;
     font-size: 0.67vw;
     font-weight: 600;
-    border: 2px solid rgba(89, 86, 99, 1);
+    border: 2px solid rgba(76, 67, 86, 1);
     border-radius: 16px;
-    text-shadow: 0px 0px 8px rgba(0, 0, 0, 1);
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
     overflow: hidden;
     position: relative;
 }
@@ -252,18 +248,18 @@ nav a {
     height: 100%;
     border-radius: 16px;
     z-index: -1;
-    filter: blur(2px) brightness(0.5);
+    filter: blur(1.5px) brightness(0.45);
 }
 
 .best-scores-header {
-    flex: 0.18;
+    flex: 0.15;
     width: 100%;
     height: 100%;
     font-size: 0.75vw;
     text-align: center;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(90deg, rgba(26, 21, 35, 0.7) 93%, rgba(20, 6, 18, 0) 97%);
+    background: linear-gradient(90deg, rgba(26, 21, 35, 0.7) 96%, rgba(20, 6, 18, 0) 100%);
     display: flex;
     flex-direction: column;
 }
@@ -279,9 +275,9 @@ nav a {
 }
 
 .best-scores-info {
-    flex: 0.64;
-    padding-left: 8px;
-    padding-right: 8px;
+    flex: 0.7;
+    padding-left: 0.2vw;
+    padding-right: 0.2vw;
     height: 100%;
     text-align: center;
     justify-content: center;
@@ -298,7 +294,7 @@ nav a {
 }
 
 .best-scores-perf {
-    flex: 0.18;
+    flex: 0.15;
     height: 100%;
     text-align: center;
     justify-content: center;
@@ -392,7 +388,7 @@ nav a {
     position: relative;
     width: 90%;
     height: calc(92% - (24px + 1.25vw));
-    border: 2px solid rgba(89, 86, 99, 1);
+    border: 2px solid rgba(76, 67, 86, 1);
     border-radius: 16px;
     box-sizing: border-box;
     overflow: hidden;

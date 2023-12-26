@@ -5,23 +5,30 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/user.css")}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user["username"] }} - o!Recap 2023</title>
-    {% set analytics = user.get("analytics") %}
-    {% if analytics is not none %}
-    {% set pass_data = analytics.get("highest_sr_pass", {}) %}
-    {% set averages = analytics.get("avg", {}) %}
-    {% set aggregates = analytics.get("agg", {}) %}
-    {% set grades = ["XH", "SH", "X", "S", "A", "B", "C", "D"] %}
-    {% set mappers = aggregates["most_played_mappers"] %}
-    {% set mods = aggregates["most_played_mods"] %}
-    {% endif %}
+    <title>
+        {% if user is not none %}
+            {{ user["username"] }}
+        {% else %}
+            N/A 
+        {% endif%} - o!Recap 2023
+    </title>
 </head>
 <body>
     <nav>
         <a href="/">o!Recap 2023</a>
     </nav>
     <div class="background"></div>
+    {% if user is not none %}
     <div class="user-info">
+        {% set analytics = user.get("analytics") %}
+        {% if analytics is not none %}
+            {% set pass_data = analytics.get("highest_sr_pass", {}) %}
+            {% set averages = analytics.get("avg", {}) %}
+            {% set aggregates = analytics.get("agg", {}) %}
+            {% set grades = ["XH", "SH", "X", "S", "A", "B", "C", "D"] %}
+            {% set mappers = aggregates["most_played_mappers"] %}
+            {% set mods = aggregates["most_played_mods"] %}
+        {% endif %}
         <div class="basic-info">
             <div class="user-details">
                 <div class="user-identity">
@@ -42,6 +49,8 @@
                 {% if analytics %}
                 <div class="summary-scores">
                     <div class="score-nums">
+                        <b class="basic-info__bold">{{ "{:,}".format(aggregates["scores"]) }}</b> scores found in 2023 (<b class="basic-info__bold">{{ "{:,}".format(aggregates["ranked_score"]|int) }}</b> Ranked Score)
+                        <!--
                         <div class="score-counts">
                             <div class="summary-title">Scores</div>
                             <div class="summary-val">{{ "{:,}".format(aggregates["scores"]) }}</div>
@@ -49,10 +58,10 @@
                         <div class="ranked-score">
                             <div class="summary-title">Ranked Score</div>
                             <div class="summary-val">{{ "{:,}".format(aggregates["ranked_score"]|int) }}</div>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="year-pp">
-                        Using only the scores you submitted in 2023, you would have <b class="basic-info__bold">{{ "{:,}pp".format(analytics["year_pp"]|int|round) }}</b>
+                        Using only these scores, you have <b class="basic-info__bold">{{ "{:,}pp".format(analytics["year_pp"]|int|round) }}</b>
                     </div>
                 </div>
                 <div class="grades">
@@ -265,6 +274,9 @@
             </div>
         </div>
     </div>
+    {% else %}
+
+    {% endif %}
     <div class="background"></div>
 </body>
 </html>

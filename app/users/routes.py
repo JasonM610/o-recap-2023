@@ -15,13 +15,8 @@ def user(user):
     if not user.isdigit():
         user_id = get_id_from_username(user)
         if user_id == -1:
-            # return some "invalid user" page
-            return render_template("user.html")
+            return render_template("user.html", user=None)
         return redirect(url_for("users.user", user=user_id))
 
     user_data = get_profile(int(user))
-    if user_data is None:
-        # return some "invalid user" page
-        return render_template("user.html")
-
     return render_template("user.html", user=user_data)
