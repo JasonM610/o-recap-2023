@@ -24,6 +24,23 @@ def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> A
         response = session.request(method, f"{base_url}{url}", json=body_params)
         response.raise_for_status()
         return response.json()
+    except RequestException as e:
+        if "TokenExpiredError" in str(e):
+            session.token = refresh_token()
+
+            response = session.request(method, f"{base_url}{url}", json=body_params)
+            response.raise_for_status()
+            return response.json()
+        else:
+            raise
+
+
+def refresh_token() -> Dict[str, Any]:
+    try:
+        new_token = session.refresh_token(
+            token_url=token_url, client_id=client_id, client_secret=client_secret
+        )
+        return new_token
     except RequestException:
         raise
 
