@@ -4,19 +4,32 @@
     <link rel="preconnect" href="https://rsms.me/">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/main.css")}}">
-    <title>Your 2023 Recap</title>
+    <title>o!Recap 2023</title>
 </head>
 <body>
     <nav>
         <a href="/">o!Recap 2023</a>
     </nav>
-    <form method="POST"> 
+    <form method="POST" spellcheck="false"> 
         <div class="form-container">
             {{ form.hidden_tag() }}
             <div>
                 {{ form.user(placeholder="Search (Username/ID)", class_="form-user") }}
                 <input type="image" src="{{url_for(".static", filename="img/search.png")}}" alt="Submit" class="submit-image">
+            </div>
         </div>
     </form>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="user-not-found">
+                    User not found. 
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="queue">
+        <div class="queue-header">Users in Queue: {{ queue_size }}</div>
+    </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from app.utils.osu import get_user
 
 
 class UserForm(FlaskForm):
