@@ -1,9 +1,9 @@
+import json
 from typing import List
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -11,26 +11,10 @@ options = Options()
 options.add_argument("--headless=new")
 
 
-playcount_present = EC.presence_of_element_located(
-    (By.XPATH, "//div[@class='beatmap-playcount']")
-)
-button_present = EC.presence_of_element_located(
-    (By.XPATH, "//button[normalize-space()='show more']")
-)
-
-
-def collect_beatmap_ids(user_id: int, beatmaps_played: int) -> List[int]:
-    return (
-        collect_ids_from_profile(user_id)
-        if beatmaps_played <= 25000
-        else collect_all_ids()
-    )
-
-
-def collect_ids_from_profile(user_id: int) -> List[int]:
+def collect_beatmap_ids(user_id: int) -> List[int]:
     """
     Scrapes "Most Played" section on the userpage to build a list of all beatmaps a user has played
-    Note that some maps (< 1%) go missing, and more go missing for users that have played a lot of maps
+    Some maps (< 1%) go missing, and more go missing for users that have played a lot of maps
 
     Args:
         user_id (int): A user's ID
@@ -42,6 +26,13 @@ def collect_ids_from_profile(user_id: int) -> List[int]:
 
     driver = webdriver.Chrome(options=options)
     driver.get(user_url)
+
+    playcount_present = EC.presence_of_element_located(
+        (By.XPATH, "//div[@class='beatmap-playcount']")
+    )
+    button_present = EC.presence_of_element_located(
+        (By.XPATH, "//button[normalize-space()='show more']")
+    )
 
     # scroll to "Historical" and wait for profile to load
     historical = driver.find_element(By.XPATH, "//div[@data-page-id='historical']")
@@ -70,7 +61,7 @@ def collect_ids_from_profile(user_id: int) -> List[int]:
     return beatmap_ids
 
 
-def collect_all_ids() -> List[int]:
+def collect_all_beatmap_ids() -> List[int]:
     """
     Builds list of ranked and loved beatmaps. Sourced from https://osu.respektive.pw/beatmaps.
     This is called for users that have played a lot of beatmaps (25,000+)
@@ -78,5 +69,6 @@ def collect_all_ids() -> List[int]:
     Returns:
         List[int]: A list of all ranked and loved beatmap IDs
     """
-
-    pass
+    with open("data/beatmaps.json") as beatmaps_file:
+        beatmaps = json.load(beatmaps_file)
+        return beatmaps["ranked"]["beatmaps"] + beatmaps["loved"]["beatmaps"]

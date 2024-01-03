@@ -12,9 +12,9 @@ session = boto3.Session(
     region_name=AWS_REGION,
 )
 
+s3 = session.resource("s3")
 sqs = session.resource("sqs")
 queue = sqs.Queue(AWS_QUEUE_URL)
-s3 = session.resource("s3")
 
 
 def write_scores(user_id: int, scores_df: pl.DataFrame) -> None:
@@ -36,13 +36,12 @@ def consume_messages() -> None:
         for message in response:
             user_id = int(message.body)
             user = get_profile(user_id)
+            message.delete()
 
             if user is not None:
                 scores_df = build_scores_df(user_id, int(user["beatmaps_played"]))
                 scores_df.write_csv(f"{user_id}.csv", separator=",")
                 insert_score_analytics(user_id, scores_df)
-
-                message.delete()
 
 
 consume_messages()

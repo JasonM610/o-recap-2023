@@ -1,5 +1,5 @@
 import polars as pl
-from typing import Dict, Any
+from typing import Any, Dict
 from app.utils.osu import get_beatmap, get_beatmap_attribs, get_beatmap_scores
 from services.beatmaps import collect_beatmap_ids
 
@@ -23,25 +23,38 @@ def build_scores_df(user_id: int, beatmaps_played: int) -> pl.DataFrame:
             rate = 1.5 if "DT" in mods or "NC" in mods else 0.75 if "HT" in mods else 1
             cs_scale = 1.3 if "HR" in mods else 0.5 if "EZ" in mods else 1
 
-            # eventually store modded attributes inside table -> reduce api calls
             beatmap_attribs = get_beatmap_attribs(beatmap_id, {"mods": score.mods})
             if beatmap_attribs is not None:
                 score_dict.update(
                     {
-                        "star_rating": round(beatmap_attribs["star_rating"], 2),
                         "length": int(beatmap_data["hit_length"] * (1 / rate)),
                         "bpm": int(beatmap_data["bpm"] * rate),
-                        "ar": round(beatmap_attribs["approach_rate"], 2),
-                        "od": round(beatmap_attribs["overall_difficulty"], 2),
                         "cs": min(10, round(beatmap_data["cs"] * cs_scale, 2)),
+                        "ar": round(
+                            beatmap_attribs.get("approach_rate", beatmap_data["ar"]), 2
+                        ),
+                        "od": round(
+                            beatmap_attribs.get(
+                                "overall_difficulty", beatmap_data["accuracy"]
+                            ),
+                            2,
+                        ),
+                        "star_rating": round(
+                            beatmap_attribs.get(
+                                "star_rating", beatmap_data["difficulty_rating"]
+                            ),
+                            2,
+                        ),
                     }
                 )
 
         return score_dict
 
     scores = []
+    # We deny the request if beatmaps_played is too long
+    beatmap_ids = collect_beatmap_ids(user_id) if beatmaps_played <= 30000 else []
 
-    for beatmap_id in collect_beatmap_ids(user_id, beatmaps_played):
+    for beatmap_id in beatmap_ids:
         beatmap_data = get_beatmap(beatmap_id)
 
         if (
