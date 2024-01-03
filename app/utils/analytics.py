@@ -30,8 +30,10 @@ def insert_user_and_enqueue(user: User) -> None:
     best_scores = get_best_scores(user.user_id)
     initial_data = build_initial_data(user, best_scores)
 
+    message = {"user_id": user.user_id, "username": user.username}
+
     table.put_item(Item=initial_data)
-    queue.send_message(MessageBody=str(user.user_id))
+    queue.send_message(MessageBody=str(message))
 
 
 def get_profile(user_id: int) -> Dict[str, Any]:
