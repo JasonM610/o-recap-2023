@@ -10,7 +10,6 @@ AWS_REGION = os.environ.get("REGION")
 AWS_QUEUE_URL = os.environ.get("QUEUE_URL")
 
 AWS_PROFILE_TABLE = "ProfileData"
-AWS_BEATMAP_TABLE = "BeatmapData"
 
 
 class Config:
