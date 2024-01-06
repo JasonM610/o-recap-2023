@@ -1,22 +1,23 @@
-import os
 from typing import Any, Dict, List, Union
 from requests import RequestException
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from app.models import Score, User, BestScore
-
-client_id = os.environ.get("CLIENT_ID")
-client_secret = os.environ.get("CLIENT_SECRET")
+from config import CLIENT_ID, CLIENT_SECRET
 
 base_url = "https://osu.ppy.sh/api/v2/"
 token_url = "https://osu.ppy.sh/oauth/token"
 
-client = BackendApplicationClient(client_id=client_id, scope=["public"])
-session = OAuth2Session(client=client)
-session.fetch_token(
-    token_url=token_url, client_id=client_id, client_secret=client_secret
-)
+
+def create_session() -> OAuth2Session:
+    client = BackendApplicationClient(client_id=CLIENT_ID, scope=["public"])
+    session = OAuth2Session(client=client)
+    session.fetch_token(
+        token_url=token_url, client_id=CLIENT_ID, client_secret=CLIENT_SECRET
+    )
+
+    return session
 
 
 def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> Any:
@@ -25,23 +26,13 @@ def make_request(method: str, url: str, body_params: Dict[str, Any] = None) -> A
         response.raise_for_status()
         return response.json()
     except TokenExpiredError:
-        new_session = reauthenticate()
+        new_session = create_session()
 
         response = new_session.request(method, f"{base_url}{url}", json=body_params)
         response.raise_for_status()
         return response.json()
     except RequestException:
         raise
-
-
-def reauthenticate() -> OAuth2Session:
-    client = BackendApplicationClient(client_id=client_id, scope=["public"])
-    new_session = OAuth2Session(client=client)
-    new_session.fetch_token(
-        token_url=token_url, client_id=client_id, client_secret=client_secret
-    )
-
-    return new_session
 
 
 def get_user(user: Union[int, str]) -> User:
@@ -91,3 +82,6 @@ def get_best_scores(user_id: int) -> List[BestScore]:
         return [BestScore(idx, play) for idx, play in enumerate(data)]
     except RequestException as e:
         return []
+
+
+session = create_session()
