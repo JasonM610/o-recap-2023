@@ -1,10 +1,16 @@
-import boto3, os, time
+import boto3, os
 import polars as pl
 from typing import Any, Dict, List
 from boto3.dynamodb.conditions import Key
 from app.models import User, BestScore
 from app.utils.osu import get_user, get_beatmap, get_best_scores
-from config import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_QUEUE_URL
+from config import (
+    AWS_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_REGION,
+    AWS_QUEUE_URL,
+    AWS_PROFILE_TABLE,
+)
 
 
 access_key = os.environ.get("AWS_ACCESS_KEY")
@@ -18,22 +24,21 @@ session = boto3.Session(
 )
 
 sqs = session.resource("sqs")
-queue = sqs.Queue(AWS_QUEUE_URL)
 dynamo = session.resource("dynamodb")
-table = dynamo.Table("ProfileData")
+queue = sqs.Queue(AWS_QUEUE_URL)
+table = dynamo.Table(AWS_PROFILE_TABLE)
 
 
 def insert_user_and_enqueue(user: User) -> None:
+    # User may already exist in DB
     if get_profile(user.user_id) is not None:
         return
 
     best_scores = get_best_scores(user.user_id)
     initial_data = build_initial_data(user, best_scores)
 
-    message = {"user_id": user.user_id, "username": user.username}
-
     table.put_item(Item=initial_data)
-    queue.send_message(MessageBody=str(message))
+    queue.send_message(MessageBody=str(user.user_id), MessageGroupId="o-recap-2023")
 
 
 def get_profile(user_id: int) -> Dict[str, Any]:
@@ -128,7 +133,11 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
         map_counts = map_counts.with_columns(
             map_counts["set_owner"]
             .apply(get_user)
-            .apply(lambda user: user.username)
+            .apply(
+                lambda user: user.username
+                if user is not None
+                else map_counts["set_owner"]
+            )
             .alias("username")
         )
 
