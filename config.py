@@ -12,6 +12,10 @@ AWS_QUEUE_URL = os.environ.get("QUEUE_URL")
 AWS_PROFILE_TABLE = "ProfileData"
 
 
+CLIENT_ID = os.environ.get("CLIENT_ID")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     FLASK_APP = os.environ.get("FLASK_APP")
