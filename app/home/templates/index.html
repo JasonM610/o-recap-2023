@@ -1,35 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>o!Recap 2023</title>
     <link rel="preconnect" href="https://rsms.me/">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/main.css")}}">
-    <title>o!Recap 2023</title>
 </head>
 <body>
     <nav>
         <a href="/">o!Recap 2023</a>
     </nav>
-    <form method="POST" spellcheck="false"> 
-        <div class="form-container">
-            {{ form.hidden_tag() }}
-            <div>
-                {{ form.user(placeholder="Search (Username/ID)", class_="form-user") }}
-                <input type="image" src="{{url_for(".static", filename="img/search.png")}}" alt="Submit" class="submit-image">
+    <div class="home">
+        <div class="welcome-text">
+            <div class="welcome-text__head">Welcome!</div>
+            <div class="welcome-text__body">
+                {% if queue_size|int != 1 %}
+                There are currently <b class="queue-size">{{ queue_size }}</b> players in queue.
+                {% else %}
+                There is currently <b class="queue-size">{{ queue_size }}</b> player in queue.
+                {% endif %}
+                <br>Each player takes 30-60 minutes to process.
+                <br>If you have any questions, please contact me! (<a class="welcome-text__link" href="https://osu.ppy.sh/users/4394718">osu!</a>, <a class="welcome-text__link" href="https://twitter.com/jaceosu">Twitter</a>)
             </div>
         </div>
-    </form>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="user-not-found">
-                    User not found. 
+        <div class="form-container">
+            <form method="POST" spellcheck="false"> 
+                <div class="form-content">
+                    {{ form.hidden_tag() }}
+                    <div>
+                        {{ form.user(placeholder="Search (Username/ID)", class_="form-user") }}
+                        <input type="image" src="{{url_for(".static", filename="img/search.png")}}" alt="Submit" class="submit-image">
+                    </div>
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <div class="queue">
-        <div class="queue-header">Users in Queue: {{ queue_size }}</div>
+            </form>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="user-not-found">
+                            User not found! Please ensure your input is valid, or try using a user ID
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
 </body>
 </html>

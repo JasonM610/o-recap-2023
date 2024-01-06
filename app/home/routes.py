@@ -31,15 +31,12 @@ def index():
     queue_size = queue.attributes["ApproximateNumberOfMessages"]
 
     if form.validate_on_submit():
-        user_input = form.user.data
+        user_input = form.user.data.strip()
         user = get_user(user_input)
 
-        if user is None:
-            flash("User not found. Please enter a valid username/ID")
-            form.user.data = ""
-            return render_template("index.html", form=form, queue_size=queue_size)
+        if user is not None:
+            insert_user_and_enqueue(user)
+            return redirect(url_for("users.user", user=user.user_id))
 
-        insert_user_and_enqueue(user)
-        return redirect(url_for("users.user", user=user.user_id))
-
+        flash()
     return render_template("index.html", form=form, queue_size=queue_size)
