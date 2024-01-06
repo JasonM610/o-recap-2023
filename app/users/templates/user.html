@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/user.css")}}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
         {% if user is not none %}
             {{ user["username"] }}
@@ -12,14 +9,16 @@
             N/A 
         {% endif%} - o!Recap 2023
     </title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for(".static", filename="css/user.css")}}">
 </head>
 <body>
     <nav>
         <a href="/">o!Recap 2023</a>
     </nav>
-    <div class="background"></div>
-    {% if user is not none %}
     <div class="user-info">
+        {% if user is not none %}
         {% set analytics = user.get("analytics") %}
         {% if analytics is not none %}
             {% set pass_data = analytics.get("highest_sr_pass", {}) %}
@@ -37,7 +36,7 @@
                     </div>
                     <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
                 </div>
-                <div class="user_nums">
+                <div class="user-nums">
                     <div class="user-stats">
                         <div class="playcount"><b class="basic-info__bold">{{ "{:,}".format(user["playcount_2023"]) }}</b> Playcount</div>
                         <div class="replays-watched"><b class="basic-info__bold">{{ "{:,}".format(user["replays_watched_2023"]) }}</b> Replays Watched</div>
@@ -48,20 +47,8 @@
             <div class="summary">
                 {% if analytics %}
                 <div class="summary-scores">
-                    <div class="score-nums">
-                        <b class="basic-info__bold">{{ "{:,}".format(aggregates["scores"]) }}</b> scores found in 2023 (<b class="basic-info__bold">{{ "{:,}".format(aggregates["ranked_score"]|int) }}</b> Ranked Score)
-                        <!--
-                        <div class="score-counts">
-                            <div class="summary-title">Scores</div>
-                            <div class="summary-val">{{ "{:,}".format(aggregates["scores"]) }}</div>
-                        </div>
-                        <div class="ranked-score">
-                            <div class="summary-title">Ranked Score</div>
-                            <div class="summary-val">{{ "{:,}".format(aggregates["ranked_score"]|int) }}</div>
-                        </div>-->
-                    </div>
-                    <div class="year-pp">
-                        Using only these scores, you have <b class="basic-info__bold">{{ "{:,}pp".format(analytics["year_pp"]|int|round) }}</b>
+                    <div class="summary-val">
+                        <b class="basic-info__bold">{{ "{:,}".format(aggregates["scores"]) }}</b> scores submitted throughout 2023, totaling <b class="basic-info__bold">{{ "{:,}pp".format(analytics["year_pp"]|int|round) }}</b> when weighted
                     </div>
                 </div>
                 <div class="grades">
@@ -196,10 +183,7 @@
                                             <div class="pass-grade">
                                                 <img class="pass-grade__img" src="{{ url_for(".static", filename="img/grades/" + pass_data["letter_grade"] + ".png") }}"></img>
                                             </div>
-                                            <div class="pass-perf__combo">
-                                                <div class="pass-combo">{{ "{:,}".format(pass_data["combo"]) }}x</div>
-                                            </div>
-                                            
+                                            <div class="pass-perf__combo">{{ "{:,}x".format(pass_data["combo"]) }}</div>
                                         </div>
                                     </div>
                                 </a>
@@ -208,30 +192,6 @@
                     </div>
                 </div>
                 <div class="most-played">
-                    <div class="mappers">
-                        <div class="analytics-header">
-                            Most Played Mappers
-                        </div>
-                        <div class="mappers-list">
-                            <ol>
-                                {% for i in range(mappers["set_owner"]|length) %}
-                                <li>
-                                    <div class="mappers-data">
-                                        <div class="mappers-data__icons">
-                                            <img class="square-img" src="https://a.ppy.sh/{{ mappers["set_owner"][i] }}"></img>
-                                        </div>
-                                        <div class="mappers-data__name">
-                                            <a href="https://osu.ppy.sh/users/{{ mappers["set_owner"][i] }}" class="mappers-data__link">
-                                                <div class="analytics-title">{{ mappers["username"][i] }}</div>
-                                            </a>
-                                            <div class="analytics-val">{{ mappers["counts"][i] }} scores</div>
-                                        </div>
-                                    </div>
-                                </li>
-                                {% endfor %}
-                            </ol>
-                        </div>
-                    </div>
                     <div class="mods">
                         <div class="analytics-header">
                             Most Played Mods
@@ -259,11 +219,46 @@
                             </ol>
                         </div>
                     </div>
+                    <div class="mappers">
+                        <div class="analytics-header">
+                            Most Played Mappers
+                        </div>
+                        <div class="mappers-list">
+                            <ol>
+                                {% for i in range(mappers["set_owner"]|length) %}
+                                <li>
+                                    <div class="mappers-data">
+                                        <div class="mappers-data__icons">
+                                            <img class="square-img" src="https://a.ppy.sh/{{ mappers["set_owner"][i] }}"></img>
+                                        </div>
+                                        <div class="mappers-data__name">
+                                            <a href="https://osu.ppy.sh/users/{{ mappers["set_owner"][i] }}" class="mappers-data__link">
+                                                <div class="analytics-title">{{ mappers["username"][i] }}</div>
+                                            </a>
+                                            <div class="analytics-val">{{ mappers["counts"][i] }} scores</div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                    
                 </div>
                 {% elif analytics is not none %}
                 <div class="no-scores">
-                    <div class="no-scores__header">No scores found in 2023.</div>
-                    <div class="no-scores__sub">Please reach out if this seems wrong!</div>
+                    <div class="no-scores__header">
+                        o!Recap was unable to process your scores
+                    </div>
+                    <div class="no-scores__sub">
+                        <ol>
+                            <li>You may have not submitted any scores in 2023</li>
+                            <li>Players with a lot of beatmaps played currently aren't processed as they massively increase queue wait times (sometimes 8+ hours per person)</li>
+                        </ol>
+                    </div>
+                    <div class="no-scores__contact">
+                        If this seems like an error, or you would like your scores processsed at a later date, please contact me! (<a class="contact-link" href="https://osu.ppy.sh/users/4394718">osu!</a>, <a class="contact-link" href="https://twitter.com/jaceosu/">Twitter</a>) 
+                    </div>
                 </div>
                 {% else %}
                 <div class="no-scores">
@@ -273,10 +268,22 @@
                 {% endif %}
             </div>
         </div>
+        {% else %}
+        <div class="user-not-found">
+            <div class="user-not-found__header">
+                User not found
+            </div>
+            <div class="user-not-found__sub">
+                <ol>
+                    <li>Ensure you are using a valid username/ID</li>
+                    <li>The user may not yet be in the database. Try searching from the home page
+                </ol>
+            </div>
+            <div class="user-not-found__contact">
+                If issues persist, please contact me! (<a class="contact-link" href="https://osu.ppy.sh/users/4394718">osu!</a>, <a class="contact-link" href="https://twitter.com/jaceosu/">Twitter</a>)
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-
-    {% endif %}
-    <div class="background"></div>
 </body>
 </html>
