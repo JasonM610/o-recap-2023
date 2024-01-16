@@ -38,5 +38,5 @@ def index():
             insert_user_and_enqueue(user)
             return redirect(url_for("users.user", user=user.user_id))
 
-        flash()
+        flash("")
     return render_template("index.html", form=form, queue_size=queue_size)
