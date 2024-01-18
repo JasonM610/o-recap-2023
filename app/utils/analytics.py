@@ -143,6 +143,9 @@ def insert_score_analytics(user_id: int, scores: pl.DataFrame) -> None:
 
         mod_counts = scores["mods"].value_counts(sort=True).head(3)
 
+        map_counts.rename({"counts": "count"})
+        mod_counts.rename({"counts": "count"})
+
         return {
             "scores": scores.select(pl.count()).item(),
             "ranked_score": scores["score"].sum(),
