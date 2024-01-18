@@ -7,11 +7,11 @@ def create_app() -> Flask:
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     with app.app_context():
-        from .home import routes
-        from .users import routes
+        from .home.routes import home
+        from .users.routes import users
 
-        app.register_blueprint(home.routes.home)
-        app.register_blueprint(users.routes.users)
+        app.register_blueprint(home)
+        app.register_blueprint(users)
 
         return app
 
