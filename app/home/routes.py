@@ -1,9 +1,6 @@
-import boto3
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, redirect, render_template, url_for
 from app.home.forms import UserForm
-from app.utils.osu import get_user
-from app.utils.analytics import insert_user_and_enqueue
-from config import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_QUEUE_URL
+from app.utils.db import Dynamo
 
 
 home = Blueprint(
@@ -17,26 +14,11 @@ home = Blueprint(
 
 @home.route("/", methods=["GET", "POST"])
 def index():
-    user_input = False
     form = UserForm()
-
-    session = boto3.Session(
-        aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_REGION,
-    )
-
-    sqs = session.resource("sqs")
-    queue = sqs.Queue(AWS_QUEUE_URL)
-    queue_size = queue.attributes["ApproximateNumberOfMessages"]
+    db = Dynamo()
 
     if form.validate_on_submit():
         user_input = form.user.data.strip()
-        user = get_user(user_input)
+        return redirect(url_for("users.user", user=user_input))
 
-        if user is not None:
-            insert_user_and_enqueue(user)
-            return redirect(url_for("users.user", user=user.user_id))
-
-        flash("")
-    return render_template("index.html", form=form, queue_size=queue_size)
+    return render_template("index.html", form=form, queue_size=db.get_queue_size())
