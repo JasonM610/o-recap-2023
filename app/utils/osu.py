@@ -87,6 +87,10 @@ class Osu:
         url = f"users/{user_id}/scores/best?mode=osu&limit=100"
         try:
             data = self._make_request("GET", url)
-            return [BestScore(idx, play) for idx, play in enumerate(data)]
+            return [
+                BestScore(idx, score)
+                for idx, score in enumerate(data)
+                if score["created_at"][:4] == "2023"
+            ]
         except RequestException as e:
             return []
