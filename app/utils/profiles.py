@@ -8,12 +8,8 @@ class ProfileDAO:
         self.osu = Osu()
         self.db = Dynamo()
 
-    def get_profile(self, user_input: str) -> Dict[str, Any]:
-        user_profile = (
-            self.db.get_profile_from_id(int(user_input))
-            if user_input.isdigit()
-            else self.db.get_profile_from_username(user_input)
-        )
+    def process_request(self, user_input: str) -> Dict[str, Any]:
+        user_profile = self.db.get_profile(user_input)
 
         if not user_profile:
             # User may not exist in the DB yet

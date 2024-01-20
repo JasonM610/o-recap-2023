@@ -24,6 +24,13 @@ class Dynamo:
         self.table = dynamo.Table(AWS_PROFILE_TABLE)
         self.queue = sqs.Queue(AWS_QUEUE_URL)
 
+    def get_profile(self, user_input: str) -> Dict[str, Any]:
+        return (
+            self.get_profile_from_id(int(user_input))
+            if user_input.isdigit()
+            else self.get_profile_from_username(user_input)
+        )
+
     def get_profile_from_id(self, user_id: int) -> Dict[str, Any]:
         response = self.table.get_item(Key={"user_id": user_id})
 

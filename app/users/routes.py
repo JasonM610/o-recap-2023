@@ -13,6 +13,6 @@ users = Blueprint(
 @users.route("/users/<user>", methods=["GET"])
 def user(user):
     profiles = ProfileDAO()
-    user_data = profiles.get_profile(user)
+    user_data = profiles.process_request(user)
 
     return render_template("user.html", user=user_data)
