@@ -1,11 +1,11 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from typing import Any, Dict
+from app.utils.queue import SQS
 from config import (
     AWS_ACCESS_KEY,
     AWS_SECRET_ACCESS_KEY,
     AWS_REGION,
-    AWS_QUEUE_URL,
     AWS_PROFILE_TABLE,
 )
 
@@ -19,10 +19,7 @@ class Dynamo:
         )
 
         dynamo = self.session.resource("dynamodb")
-        sqs = self.session.resource("sqs")
-
         self.table = dynamo.Table(AWS_PROFILE_TABLE)
-        self.queue = sqs.Queue(AWS_QUEUE_URL)
 
     def get_profile(self, user_input: str) -> Dict[str, Any]:
         return (
@@ -50,14 +47,11 @@ class Dynamo:
 
         return response["Items"][0]
 
-    def get_queue_size(self) -> int:
-        return int(self.queue.attributes["ApproximateNumberOfMessages"]) + int(
-            self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
-        )
-
     def insert_profile(self, user_profile: Dict[str, Any]) -> None:
         self.table.put_item(Item=user_profile)
-        self.queue.send_message(
+
+        sqs = SQS()
+        sqs.queue.send_message(
             MessageBody=str(user_profile["user_id"]), MessageGroupId="o-recap-2023"
         )
 
