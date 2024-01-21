@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
-        {% if user is not none %}
+        {% if user %}
             {{ user["username"] }}
         {% else %}
             N/A 
@@ -18,9 +18,9 @@
         <a href="/">o!Recap 2023</a>
     </nav>
     <div class="user-info">
-        {% if user is not none %}
+        {% if user %}
         {% set analytics = user.get("analytics") %}
-        {% if analytics is not none %}
+        {% if analytics %}
             {% set pass_data = analytics.get("highest_sr_pass", {}) %}
             {% set averages = analytics.get("avg", {}) %}
             {% set aggregates = analytics.get("agg", {}) %}
@@ -165,6 +165,7 @@
                         <div class="analytics-header">
                             Highest Star Pass
                         </div>
+                        {% if pass_data %}
                         <div class="pass-data">
                             <div class="pass-data__score">
                                 <a href="https://osu.ppy.sh/b/{{ pass_data["beatmap_id"] }}" class="pass-data__link">
@@ -189,6 +190,7 @@
                                 </a>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="most-played">
@@ -274,13 +276,8 @@
                 User not found
             </div>
             <div class="user-not-found__sub">
-                <ol>
-                    <li>Ensure you are using a valid username/ID</li>
-                    <li>The user may not yet be in the database. Try searching from the home page
-                </ol>
-            </div>
-            <div class="user-not-found__contact">
-                If issues persist, please contact me! (<a class="contact-link" href="https://osu.ppy.sh/users/4394718">osu!</a>, <a class="contact-link" href="https://twitter.com/jaceosu/">Twitter</a>)
+                Ensure you are using a valid username/ID
+                <br>If issues persist, please contact me! (<a class="contact-link" href="https://osu.ppy.sh/users/4394718">osu!</a>, <a class="contact-link" href="https://twitter.com/jaceosu/">Twitter</a>)
             </div>
         </div>
         {% endif %}

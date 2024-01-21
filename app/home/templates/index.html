@@ -38,7 +38,7 @@
                 {% if messages %}
                     {% for message in messages %}
                         <div class="user-not-found">
-                            User not found! Please ensure your input is valid, or try using a user ID
+                            {{ message }}
                         </div>
                     {% endfor %}
                 {% endif %}
