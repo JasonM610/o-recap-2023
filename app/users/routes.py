@@ -10,7 +10,7 @@ users = Blueprint(
 )
 
 
-@users.route("/users/<user>", methods=["GET"])
+@users.route("/u/<user>", methods=["GET"])
 def user(user):
     profiles = ProfileDAO()
     user_data = profiles.process_request(user)
