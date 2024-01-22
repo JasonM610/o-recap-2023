@@ -44,10 +44,10 @@ nav a {
 
 .square-img {
     background-color: rgb(14, 11, 23);
-    border: 2px solid rgba(40, 35, 52);
+    border: 2px solid rgb(76, 72, 86);
     height: 128px;
     width: 128px;
-    border-radius: 15%;
+    border-radius: 24px;
 }
 
 .username,
@@ -61,12 +61,11 @@ nav a {
 .user-info {
     background-color: rgb(33, 30, 44);
     padding-top: 50px;
-    min-height: 900px;
-    min-width: 1900px;
+    min-width: 1280px;
 }
 
 .basic-info {
-    min-height: 215px;
+    min-height: 180px;
     background-color: rgb(33, 29, 43);
     display: flex;
 }
@@ -80,19 +79,18 @@ nav a {
     padding: 16px;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .user-identity {
-    flex: 0.25;
+    flex: 0.5;
     text-align: center;
 }
 
 .user-pfp {
     height: 144px;
     width: 144px;
-    background: rgb(28, 24, 39);
-    border: 2px solid rgba(56, 52, 72);
+    background: rgb(30, 26, 41);
+    border: 2px solid rgba(76, 72, 86);
 }
 
 .username {
@@ -100,16 +98,56 @@ nav a {
     font-weight: 700;
 }
 
-.user-nums {
-    flex: 0.35;
+.user-stats {
+    position: fixed;
+    width: 42%;
+    padding-top: 18px;
+    font-size: 1.25rem;
+    font-weight: 500;
+    display: flex;
+}
+
+.user-stats__left {
+    position: fixed;
+    right: calc(100% - (0.42*(38.5%)));
+    height: 108px;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.user-stats__right {
+    position: fixed;
+    left: calc(0.42*(62%));
+    height: 108px;
     display: flex;
     flex-direction: column;
 }
 
-.user-stats {
-    font-size: 1.2rem;
+.user-stats__left > div {
+    flex: 0.5;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.user-stats__right > div {
+    flex: 0.5;
+    display: flex;
+    align-items: center;
+}
+
+.user-stats__img {
+    width: 40px;
+}
+
+.users-stats__img-left {
+    padding-left: 12px;
+}
+
+.users-stats__img-right {
+    padding-right: 12px;
 }
 
 .summary {
@@ -123,7 +161,7 @@ nav a {
     margin-right: 12px;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-around;
 }
 
 .summary-val {
@@ -158,7 +196,6 @@ nav a {
 .grades-data {
     font-size: 1.2rem;
     font-weight: 600;
-    color: rgb(243, 241, 255);
     padding: 0px 8px;
     display: flex;
     flex-direction: column;
@@ -171,7 +208,7 @@ nav a {
 }
 
 .score-info {
-    min-height: 688px;
+    min-height: 540px;
     display: flex;
 }
 
@@ -184,28 +221,20 @@ nav a {
 .best-scores-list {
     display: flex;
     align-items: center;
-}
-
-.best-scores-list__rank {
-    flex: 0.06;
-    padding-right: 12px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    text-align: right;
-    color: rgb(243, 241, 255);
+    justify-content: center;
 }
 
 .best-scores-list__score {
-    flex: 0.91;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 62px;
+    width: 96%;
     margin: 8px 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    border: 2px solid rgb(77, 70, 87);
-    border-radius: 32px;
+    border: 2px solid rgb(95, 91, 105);
+    border-radius: 24px;
     text-shadow: 1px 1px 2px rgba(12, 8, 22, 0.5);
     overflow: hidden;
     position: relative;
@@ -232,7 +261,7 @@ nav a {
     flex: 0.15;
     width: 100%;
     height: 100%;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-align: center;
     justify-content: center;
     align-items: center;
@@ -253,7 +282,6 @@ nav a {
 
 .best-scores-info {
     flex: 0.7;
-    padding: 0px 4px;
     height: 100%;
     text-align: center;
     justify-content: center;
@@ -311,7 +339,7 @@ nav a {
 .highest-sr-pass,
 .mappers,
 .mods {
-    border-radius: 32px;
+    border-radius: 24px;
     background-color: rgb(20, 17, 27);
 }
 
@@ -358,14 +386,15 @@ nav a {
     flex-direction: column;
     align-items: center;
     height: 100%;
+    margin-top: 0.5vh;
 }
 
 .pass-data__score {
     position: relative;
     width: 90%;
     height: calc(90% - (24px + 1.5rem));
-    border: 2px solid rgb(75, 70, 87);
-    border-radius: 32px;
+    border: 2px solid rgb(76, 72, 86);
+    border-radius: 24px;
     box-sizing: border-box;
     overflow: hidden;
     display: flex;
@@ -373,8 +402,8 @@ nav a {
 }
 
 .pass-data__link {
-    height: 86%;
-    width: 92%;
+    height: 100%;
+    width: 100%;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -400,7 +429,7 @@ nav a {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    filter: blur(3px) brightness(0.5);
+    filter: blur(2px) brightness(0.8);
 }
 
 .pass-header {
@@ -413,9 +442,7 @@ nav a {
     font-weight: 700;
     font-size: 1.5rem;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 1);
-    background: linear-gradient(180deg, rgba(16, 13, 24, 0.86) 94%, rgba(18, 15, 29, 0.8) 100%);
-    border-top-left-radius: 32px;
-    border-top-right-radius: 32px;
+    background: linear-gradient(180deg, rgba(16, 13, 24, 0.85) 96%, rgba(18, 15, 29, 0.75) 100%);
 }
 
 .pass-sr,
@@ -426,22 +453,20 @@ nav a {
 .pass-map {
     flex: 0.76;
     position: relative;
-    padding: 4px 16px 12px 16px;
-    width: calc(100% - 32px);
-    font-size: 1.15rem;
+    padding: 4px 12px 8px 12px;
+    width: calc(100% - 24px);
+    font-size: 1.25rem;
     font-weight: 500;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.75);
-    background: radial-gradient(rgba(18, 15, 29, 0.5), rgba(18, 15, 29, 0.8));
+    background: radial-gradient(rgba(18, 15, 29, 0.6), rgba(18, 15, 29, 0.75));
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border-bottom-left-radius: 32px;
-    border-bottom-right-radius: 32px;
 }
 
 .pass-perf {
     width: 100%;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     display: flex;
     justify-content: center;
     align-items: end;
@@ -463,8 +488,8 @@ nav a {
 }
 
 .pass-grade__img {
-    height: 56px;
-    width: 56px;
+    height: 64px;
+    width: 64px;
 }
 
 .pass-perf__combo {
@@ -489,13 +514,14 @@ nav a {
 .mappers-list ol,
 .mods-list ol {
     display: flex;
+    justify-content: center;
     height: 100%;
 }
 
 .mappers-list li,
 .mods-list li {
-    flex: 0.32;
     height: 100%;
+    align-items: center;
 }
 
 .mappers-data,
@@ -542,6 +568,10 @@ nav a {
 
 .mappers-list ol {
     justify-content: center;
+}
+
+.mappers-list li {
+    flex: 0.33;
 }
 
 .mappers-data {
