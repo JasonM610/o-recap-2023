@@ -30,32 +30,30 @@
         {% endif %}
         <div class="basic-info">
             <div class="user-details">
+                <div class="user-stats__left">
+                    <div class="playcount">
+                        {{ "{:,}".format(user["playcount_2023"]) }}
+                        <img class="user-stats__img" title="Playcount" src="{{ url_for(".static", filename="img/icons/playcount.png") }}"></img>
+                    </div>
+                    <div class="achievements">
+                        {{ user["achievements_2023"] }}
+                        <img class="user-stats__img" title="Achievements" src="{{ url_for(".static", filename="img/icons/achievements.png") }}"></img>
+                    </div>
+                </div>
                 <div class="user-identity">
                     <div>
                         <img class="square-img user-pfp" src="{{ user["avatar_url"] }}">
                     </div>
                     <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
                 </div>
-                <div class="user-stats">
-                    <div class="user-stats__left">
-                        <div class="playcount">
-                            {{ "{:,}".format(user["playcount_2023"]) }}
-                            <img class="user-stats__img users-stats__img-left" title="Playcount" src="{{ url_for(".static", filename="img/icons/playcount.png") }}"></img>
-                        </div>
-                        <div class="achievements">
-                            {{ user["achievements_2023"] }}
-                            <img class="user-stats__img users-stats__img-left" title="Achievements" src="{{ url_for(".static", filename="img/icons/achievements.png") }}"></img>
-                        </div>
+                <div class="user-stats__right">
+                    <div class="replays-watched">
+                        <img class="user-stats__img" title = "Replays Watched" src="{{ url_for(".static", filename="img/icons/replays-watched.png") }}"></img>
+                        {{ "{:,}".format(user["replays_watched_2023"]) }}
                     </div>
-                    <div class="user-stats__right">
-                        <div class="replays-watched">
-                            <img class="user-stats__img users-stats__img-right" title = "Replays Watched" src="{{ url_for(".static", filename="img/icons/replays-watched.png") }}"></img>
-                            {{ "{:,}".format(user["replays_watched_2023"]) }}
-                        </div>
-                        <div class="badges">
-                            <img class="user-stats__img users-stats__img-right" title="Badges" src="{{ url_for(".static", filename="img/icons/badges.png") }}"></img>
-                            {{ user["badges_2023"] }}
-                        </div>
+                    <div class="badges">
+                        <img class="user-stats__img" title="Badges" src="{{ url_for(".static", filename="img/icons/badges.png") }}"></img>
+                        {{ user["badges_2023"] }}
                     </div>
                 </div>
             </div>
