@@ -7,9 +7,9 @@ load_dotenv(os.path.join(basedir, ".env"))
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("REGION")
+AWS_SCORE_BUCKET = os.environ.get("BUCKET_NAME")
+AWS_PROFILE_TABLE = os.environ.get("TABLE_NAME")
 AWS_QUEUE_URL = os.environ.get("QUEUE_URL")
-
-AWS_PROFILE_TABLE = "ProfileData"
 
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
