@@ -30,31 +30,33 @@
         {% endif %}
         <div class="basic-info">
             <div class="user-details">
-                <div class="user-stats__left">
-                    <div class="playcount">
-                        {{ "{:,}".format(user["playcount_2023"]) }}
-                        <img class="user-stats__img" title="Playcount" src="{{ url_for(".static", filename="img/icons/playcount.png") }}"></img>
+                <div class="user-details__top">
+                    <div class="user-stats__left">
+                        <div class="playcount">
+                            {{ "{:,}".format(user["playcount_2023"]) }}
+                            <img class="user-stats__img" title="Playcount" src="{{ url_for(".static", filename="img/icons/playcount.png") }}"></img>
+                        </div>
+                        <div class="achievements">
+                            {{ user["achievements_2023"] }}
+                            <img class="user-stats__img" title="Achievements" src="{{ url_for(".static", filename="img/icons/achievements.png") }}"></img>
+                        </div>
                     </div>
-                    <div class="achievements">
-                        {{ user["achievements_2023"] }}
-                        <img class="user-stats__img" title="Achievements" src="{{ url_for(".static", filename="img/icons/achievements.png") }}"></img>
-                    </div>
-                </div>
-                <div class="user-identity">
-                    <div>
+                    <div class="user-profile">
                         <img class="square-img user-pfp" src="{{ user["avatar_url"] }}">
                     </div>
-                    <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
+                    <div class="user-stats__right">
+                        <div class="replays-watched">
+                            <img class="user-stats__img" title = "Replays Watched" src="{{ url_for(".static", filename="img/icons/replays-watched.png") }}"></img>
+                            {{ "{:,}".format(user["replays_watched_2023"]) }}
+                        </div>
+                        <div class="badges">
+                            <img class="user-stats__img" title="Badges" src="{{ url_for(".static", filename="img/icons/badges.png") }}"></img>
+                            {{ user["badges_2023"] }}
+                        </div>
+                    </div>
                 </div>
-                <div class="user-stats__right">
-                    <div class="replays-watched">
-                        <img class="user-stats__img" title = "Replays Watched" src="{{ url_for(".static", filename="img/icons/replays-watched.png") }}"></img>
-                        {{ "{:,}".format(user["replays_watched_2023"]) }}
-                    </div>
-                    <div class="badges">
-                        <img class="user-stats__img" title="Badges" src="{{ url_for(".static", filename="img/icons/badges.png") }}"></img>
-                        {{ user["badges_2023"] }}
-                    </div>
+                <div class="user-name">
+                    <a href="https://osu.ppy.sh/users/{{ user["user_id"] }}" class="username">{{ user["username"] }}</a>
                 </div>
             </div>
             <div class="summary">
@@ -244,8 +246,8 @@
                                             <img class="square-img" src="https://a.ppy.sh/{{ mappers["set_owner"][i] }}"></img>
                                         </div>
                                         <div class="mappers-data__name">
-                                            <a href="https://osu.ppy.sh/users/{{ mappers["set_owner"][i] }}" class="mappers-data__link">
-                                                <div class="analytics-title">{{ mappers["username"][i] }}</div>
+                                            <a href="https://osu.ppy.sh/users/{{ mappers["set_owner"][i] }}" class="mappers-data__link analytics-title">
+                                                {{ mappers["username"][i] }}
                                             </a>
                                             <div class="analytics-val">{{ mappers["counts"][i] }} scores</div>
                                         </div>
