@@ -5,15 +5,6 @@ from app.utils.db import Dynamo
 from services.analytics import Analytics
 
 
-def write_scores(user_id: int, scores_df: pl.DataFrame) -> None:
-    scores_csv = scores_df.to_csv()
-    s3.put_object(
-        Body=scores_csv,
-        Bucket=os.environ.get("BUCKET_NAME"),
-        Key=f"scores/{user_id}.csv",
-    )
-
-
 def consume_messages() -> None:
     db, sqs = Dynamo(), SQS()
     while True:
