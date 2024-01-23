@@ -1,12 +1,14 @@
 import polars as pl
 from typing import Any, Dict
 from app.utils.osu import Osu
-from services.scores import build_scores_df
+from services.utils.scores import build_scores_df
+from config import AWS_SCORE_BUCKET
 
 
 class Analytics:
     def __init__(self, user: Dict[str, Any]) -> None:
         self.osu = Osu()
+        self.user_id = user["user_id"]
         self.scores = build_scores_df(user["user_id"], user["beatmaps_played"])
 
     def get_analytics(self) -> Dict[str, Any]:
@@ -102,3 +104,7 @@ class Analytics:
             "most_played_mappers": map_counts.to_dict(as_series=False),
             "most_played_mods": mod_counts.to_dict(as_series=False),
         }
+
+    def write_scores(self) -> None:
+        dest = f"s3://{AWS_SCORE_BUCKET}/scores/{self.user_id}.csv"
+        self.scores.write_csv(dest)
