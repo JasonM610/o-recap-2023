@@ -1,13 +1,15 @@
 import polars as pl
+import s3fs
 from typing import Any, Dict
 from app.utils.osu import Osu
 from services.utils.scores import build_scores_df
-from config import AWS_SCORE_BUCKET
+from config import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_SCORE_BUCKET
 
 
 class Analytics:
+    osu = Osu()
+
     def __init__(self, user: Dict[str, Any]) -> None:
-        self.osu = Osu()
         self.user_id = user["user_id"]
         self.scores = build_scores_df(user["user_id"], user["beatmaps_played"])
 
@@ -106,5 +108,9 @@ class Analytics:
         }
 
     def write_scores(self) -> None:
-        dest = f"s3://{AWS_SCORE_BUCKET}/scores/{self.user_id}.csv"
-        self.scores.write_csv(dest)
+        if self.scores.is_empty():
+            return
+
+        s3 = s3fs.S3FileSystem(key=AWS_ACCESS_KEY, secret=AWS_SECRET_ACCESS_KEY)
+        with s3.open(f"{AWS_SCORE_BUCKET}/scores/{self.user_id}.csv", "wb") as f:
+            self.scores.write_csv(f, separator=",")
