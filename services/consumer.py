@@ -14,11 +14,12 @@ def consume_messages() -> None:
             user_id = int(message.body)
             user = db.get_profile_from_id(user_id)
 
-            if user is not None:
+            if user:
                 analytics = Analytics(user)
                 analytics.write_scores()
                 db.insert_analytics(user_id, analytics.get_analytics())
-                message.delete()
+
+            message.delete()
 
 
 if __name__ == "__main__":
