@@ -11,15 +11,14 @@ from config import (
 
 
 class Dynamo:
-    def __init__(self) -> None:
-        self.session = boto3.Session(
-            aws_access_key_id=AWS_ACCESS_KEY,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            region_name=AWS_REGION,
-        )
+    session = boto3.Session(
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_REGION,
+    )
 
-        dynamo = self.session.resource("dynamodb")
-        self.table = dynamo.Table(AWS_PROFILE_TABLE)
+    dynamo = session.resource("dynamodb")
+    table = dynamo.Table(AWS_PROFILE_TABLE)
 
     def get_profile(self, user_input: str) -> Dict[str, Any]:
         return (

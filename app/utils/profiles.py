@@ -4,9 +4,8 @@ from app.utils.db import Dynamo
 
 
 class ProfileDAO:
-    def __init__(self) -> None:
-        self.osu = Osu()
-        self.db = Dynamo()
+    osu = Osu()
+    db = Dynamo()
 
     def process_request(self, user_input: str) -> Dict[str, Any]:
         user_profile = self.db.get_profile(user_input)
