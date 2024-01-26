@@ -1,5 +1,3 @@
-import os
-import polars as pl
 from app.utils.queue import SQS
 from app.utils.db import Dynamo
 from services.analytics import Analytics
