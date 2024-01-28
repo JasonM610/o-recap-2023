@@ -7,8 +7,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-options = Options()
-options.add_argument("--headless=new")
+
+def get_options() -> Options:
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    return options
 
 
 def collect_beatmap_ids(user_id: int) -> List[int]:
@@ -24,7 +30,7 @@ def collect_beatmap_ids(user_id: int) -> List[int]:
     """
     user_url = f"https://osu.ppy.sh/users/{user_id}"
 
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=get_options())
     driver.get(user_url)
 
     playcount_present = EC.presence_of_element_located(
