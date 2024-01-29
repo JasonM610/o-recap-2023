@@ -18,6 +18,8 @@ class SQS:
     queue = sqs.Queue(AWS_QUEUE_URL)
 
     def get_queue_size(self) -> int:
+        self.queue.reload()
+
         return int(self.queue.attributes["ApproximateNumberOfMessages"]) + int(
             self.queue.attributes["ApproximateNumberOfMessagesNotVisible"]
         )
